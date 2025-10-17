@@ -1,0 +1,94 @@
+.sidebar-header {
+  padding: 20px 16px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 64px;
+}
+
+.logo {
+  margin: 0;
+  font-size: 20px;
+  font-weight: bold;
+  color: var(--text-primary);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logo-icon {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.sidebar-trigger {
+  position: absolute;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(24, 144, 255, 0.1);
+  border: 1px solid rgba(24, 144, 255, 0.3);
+  border-radius: 8px;
+  cursor: pointer;
+  color: #1890ff;
+  transition: all 0.3s;
+  z-index: 10;
+}
+
+.sidebar-trigger:hover {
+  background: #1890ff;
+  border-color: #1890ff;
+  color: #fff;
+  transform: translateX(-50%) translateY(-2px);
+  box-shadow: 0 4px 12px rgba(24, 144, 255, 0.4);
+}
+
+.sidebar-trigger svg {
+  font-size: 16px;
+}
+
+/* 侧边栏菜单样式优化 */
+:global(.ant-layout-sider) {
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+}
+
+:global(.ant-menu-inline .ant-menu-item) {
+  margin: 4px 8px;
+  border-radius: 8px;
+  height: 44px;
+  line-height: 44px;
+}
+
+:global(.ant-menu-inline .ant-menu-item:hover) {
+  background: rgba(24, 144, 255, 0.08);
+}
+
+:global(.ant-menu-inline .ant-menu-item-selected) {
+  background: rgba(24, 144, 255, 0.15);
+  color: #1890ff;
+  font-weight: 500;
+}
+
+/* Drawer样式优化 */
+:global(.ant-drawer .ant-menu-inline .ant-menu-item) {
+  margin: 4px 12px;
+}

@@ -1,0 +1,80 @@
+:root {
+  /* 亮色主题 */
+  --bg-primary: #F9F9F9;
+  --bg-sidebar: #F0F2F4;
+  --text-primary: #282A2D;
+  --text-secondary: #666;
+  --card-bg: #fff;
+  --border-color: #e8e8e8;
+  --sidebar-width: 220px;
+}
+
+[data-theme='dark'] {
+  /* 暗色主题 */
+  --bg-primary: #141414;
+  --bg-sidebar: #1f1f1f;
+  --text-primary: #fff;
+  --text-secondary: #b3b3b3;
+  --card-bg: #262626;
+  --border-color: #434343;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* 全局强制卡片样式 - 确保垂直居中 */
+.tool-card {
+  width: 100% !important;
+  height: 75px !important;
+}
+
+.tool-card .ant-card-body {
+  padding: 15px !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.tool-card-content {
+  display: flex !important;
+  align-items: center !important;
+  width: 100%;
+  height: 100%;
+}
+
+.tool-logo {
+  width: 40px !important;
+  height: 40px !important;
+}
+
+.tool-info {
+  flex: 1;
+  min-width: 0;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+}
+
+.tool-name {
+  margin: 0 !important;
+  line-height: 1.2;
+}
+
+.tool-description {
+  margin: 4px 0 0 0 !important;
+  line-height: 1.2;
+}

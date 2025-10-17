@@ -1,0 +1,32 @@
+.category-section {
+  margin-top: 48px;
+  margin-bottom: 48px;
+  scroll-margin-top: 24px;
+}
+
+.category-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.category-icon {
+  font-size: 24px;
+  margin-right: 12px;
+  color: #1890ff;
+}
+
+.category-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.category-count {
+  margin-left: 8px;
+  font-size: 18px;
+  color: var(--text-secondary);
+}

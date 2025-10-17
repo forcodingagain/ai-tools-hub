@@ -1,0 +1,17 @@
+.main-content {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* 移动端菜单按钮 */
+.mobile-menu-button:hover {
+  background: #1890ff !important;
+  border-color: #1890ff !important;
+  color: #fff !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(24, 144, 255, 0.4);
+}
+
+.mobile-menu-button:active {
+  transform: translateY(0);
+}

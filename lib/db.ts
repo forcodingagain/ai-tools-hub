@@ -1,0 +1,196 @@
+import Database from 'better-sqlite3';
+import path from 'path';
+
+// 数据库单例实例
+let db: Database.Database | null = null;
+
+/**
+ * 从 ID 字符串中提取数字部分
+ * @param idString - 如 "tool-001" 或 "category-6"
+ * @returns 提取的数字，如 1 或 6
+ */
+export function extractLegacyId(idString: string): number {
+  const match = idString.match(/-(\d+)$/);
+  if (!match) {
+    throw new Error(`无法从 ID 提取数字: ${idString}`);
+  }
+  return parseInt(match[1], 10);
+}
+
+/**
+ * 获取数据库连接单例
+ * @returns SQLite 数据库实例
+ */
+export function getDatabase(): Database.Database {
+  if (!db) {
+    const dbPath = path.join(process.cwd(), 'ai_tools.db');
+
+    db = new Database(dbPath);
+
+    // 启用外键约束（必须！）
+    db.pragma('foreign_keys = ON');
+
+    // 启用 WAL 模式（提升并发性能）
+    db.pragma('journal_mode = WAL');
+
+    console.log('✅ 数据库连接已建立:', dbPath);
+  }
+
+  return db;
+}
+
+/**
+ * 关闭数据库连接
+ */
+export function closeDatabase(): void {
+  if (db) {
+    db.close();
+    db = null;
+    console.log('✅ 数据库连接已关闭');
+  }
+}
+
+/**
+ * 数据库查询辅助函数
+ */
+export const dbHelpers = {
+  /**
+   * 获取所有活跃工具（未删除，使用优化视图）
+   */
+  getActiveTools: () => {
+    const db = getDatabase();
+    const stmt = db.prepare('SELECT * FROM v_active_tools ORDER BY view_count DESC');
+    return stmt.all();
+  },
+
+  /**
+   * 根据 legacy_id 获取工具的 INTEGER id
+   * @param legacyId - 数字类型的 legacy_id (如 1, 2, 3...)
+   */
+  getToolIdByLegacyId: (legacyId: number): number | null => {
+    const db = getDatabase();
+    const stmt = db.prepare('SELECT id FROM tools WHERE legacy_id = ? AND is_deleted = 0');
+    const result = stmt.get(legacyId) as { id: number } | undefined;
+    return result ? result.id : null;
+  },
+
+  /**
+   * 根据 INTEGER id 获取工具详情
+   */
+  getToolById: (id: number) => {
+    const db = getDatabase();
+    const stmt = db.prepare('SELECT * FROM v_active_tools WHERE id = ?');
+    return stmt.get(id);
+  },
+
+  /**
+   * 根据 legacy_id 获取工具详情
+   * @param legacyId - 数字类型的 legacy_id (如 1, 2, 3...)
+   */
+  getToolByLegacyId: (legacyId: number) => {
+    const db = getDatabase();
+    const stmt = db.prepare('SELECT * FROM v_active_tools WHERE legacy_id = ?');
+    return stmt.get(legacyId);
+  },
+
+  /**
+   * 原子更新工具浏览量
+   */
+  incrementViewCount: (id: number): void => {
+    const db = getDatabase();
+    const stmt = db.prepare('UPDATE tools SET view_count = view_count + 1 WHERE id = ? AND is_deleted = 0');
+    stmt.run(id);
+  },
+
+  /**
+   * 更新工具信息
+   */
+  updateTool: (id: number, data: {
+    name?: string;
+    description?: string;
+    logo?: string;
+    url?: string;
+    category_id?: number;
+    is_featured?: number;
+    is_new?: number;
+  }): void => {
+    const db = getDatabase();
+
+    const fields: string[] = [];
+    const values: any[] = [];
+
+    if (data.name !== undefined) {
+      fields.push('name = ?');
+      values.push(data.name);
+    }
+    if (data.description !== undefined) {
+      fields.push('description = ?');
+      values.push(data.description);
+    }
+    if (data.logo !== undefined) {
+      fields.push('logo = ?');
+      values.push(data.logo);
+    }
+    if (data.url !== undefined) {
+      fields.push('url = ?');
+      values.push(data.url);
+    }
+    if (data.category_id !== undefined) {
+      fields.push('category_id = ?');
+      values.push(data.category_id);
+    }
+    if (data.is_featured !== undefined) {
+      fields.push('is_featured = ?');
+      values.push(data.is_featured);
+    }
+    if (data.is_new !== undefined) {
+      fields.push('is_new = ?');
+      values.push(data.is_new);
+    }
+
+    if (fields.length === 0) {
+      return; // 没有需要更新的字段
+    }
+
+    values.push(id);
+    const sql = `UPDATE tools SET ${fields.join(', ')} WHERE id = ? AND is_deleted = 0`;
+    const stmt = db.prepare(sql);
+    stmt.run(...values);
+  },
+
+  /**
+   * 软删除工具
+   */
+  softDeleteTool: (id: number): void => {
+    const db = getDatabase();
+    const stmt = db.prepare('UPDATE tools SET is_deleted = 1 WHERE id = ? AND is_deleted = 0');
+    stmt.run(id);
+  },
+
+  /**
+   * 获取所有活跃分类
+   */
+  getActiveCategories: () => {
+    const db = getDatabase();
+    const stmt = db.prepare('SELECT * FROM v_category_stats ORDER BY display_order');
+    return stmt.all();
+  },
+
+  /**
+   * 获取站点配置
+   */
+  getSiteConfig: () => {
+    const db = getDatabase();
+    const configStmt = db.prepare('SELECT * FROM site_config WHERE id = 1');
+    const keywordsStmt = db.prepare('SELECT keyword FROM site_keywords ORDER BY id');
+
+    const config = configStmt.get() as any;
+    const keywords = keywordsStmt.all() as Array<{ keyword: string }>;
+
+    return {
+      siteName: config.site_name,
+      description: config.description,
+      keywords: keywords.map(k => k.keyword)
+    };
+  }
+};
