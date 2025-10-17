@@ -24,9 +24,10 @@ const Header = ({
         return null;
     }
 
-    // 构建下拉菜单
+    // 构建下拉菜单（使用顶部菜单专用图标）
     const menuItems = categories.map((category) => {
-        const IconComponent = Icons[category.icon] || Icons.AppstoreOutlined;
+        const iconKey = category.headerIcon || category.icon; // 优先使用header_icon，回退到icon
+        const IconComponent = Icons[iconKey] || Icons.AppstoreOutlined;
         return {
             key: category.id,
             icon: <IconComponent />,

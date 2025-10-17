@@ -18,6 +18,7 @@ export async function GET() {
       id: cat.legacy_id,
       name: cat.name,
       icon: cat.icon,
+      headerIcon: cat.header_icon, // 新增顶部菜单栏专用图标
       toolCount: cat.tool_count || 0
     }))
 

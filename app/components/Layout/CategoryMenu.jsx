@@ -17,7 +17,9 @@ const CategoryMenu = ({ onMenuClick, collapsed, currentCategory }) => {
   };
 
   const menuItems = settings.categories.map(category => {
-    const IconComponent = Icons[category.icon] || Icons.AppstoreOutlined;
+    // 统一使用header_icon，保持与顶部菜单栏一致的图标风格
+    const iconKey = category.headerIcon || category.icon; // 优先使用header_icon，回退到icon
+    const IconComponent = Icons[iconKey] || Icons.AppstoreOutlined;
 
     return {
       key: category.id,
