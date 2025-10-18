@@ -5,7 +5,7 @@ import { Spin } from 'antd';
 const SettingsContext = createContext(null);
 
 export const SettingsProvider = ({ children }) => {
-  const { settings, loading, error, incrementViewCount, updateTool, deleteTool } = useSettings();
+  const { settings, loading, error, incrementViewCount, updateTool, deleteTool, updateToolTags } = useSettings();
 
   if (loading) {
     return (
@@ -36,7 +36,7 @@ export const SettingsProvider = ({ children }) => {
   }
 
   return (
-    <SettingsContext.Provider value={{ ...settings, incrementViewCount, updateTool, deleteTool }}>
+    <SettingsContext.Provider value={{ ...settings, incrementViewCount, updateTool, deleteTool, updateToolTags }}>
       {children}
     </SettingsContext.Provider>
   );

@@ -169,5 +169,17 @@ export const useSettings = () => {
     }
   };
 
-  return { settings, loading, error, incrementViewCount, updateTool, deleteTool };
+  // 更新工具标签（本地状态更新）
+  const updateToolTags = (toolId, newTags) => {
+    setSettings(prevSettings => ({
+      ...prevSettings,
+      tools: prevSettings.tools.map(tool =>
+        tool.id === toolId
+          ? { ...tool, tags: newTags }
+          : tool
+      )
+    }));
+  };
+
+  return { settings, loading, error, incrementViewCount, updateTool, deleteTool, updateToolTags };
 };

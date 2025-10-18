@@ -1,29 +1,36 @@
 'use client'
 
 import { useState, useEffect } from 'react';
-import { Badge, Dropdown, Modal, Form, Input, Switch, App, Tooltip, Tag, Space } from 'antd';
+import { Badge, Dropdown, Modal, Form, Input, Switch, App, Tag, Space, Tooltip } from 'antd';
 import { PlusOutlined, CloseOutlined } from '@ant-design/icons';
 import { useSettingsContext } from '../../context/SettingsContext';
 import './ToolCard.css';
 
 const ToolCard = ({ tool }) => {
-  const { incrementViewCount, updateTool, deleteTool } = useSettingsContext();
+  const { incrementViewCount, updateTool, deleteTool, updateToolTags } = useSettingsContext();
   const { modal, message } = App.useApp();
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [form] = Form.useForm();
-  const [tags, setTags] = useState([]);
+  // 用于编辑模态框的标签（包含 id）
+  const [editTags, setEditTags] = useState([]);
   const [newTagInput, setNewTagInput] = useState('');
   const [tagInputVisible, setTagInputVisible] = useState(false);
 
   const showBadge = tool.isNew || tool.isFeatured;
 
-  // 加载标签
-  const loadTags = async () => {
+  // 显示用的标签（从 tool.tags 直接获取，无需请求）
+  const displayTags = (tool.tags || []).map((tagName, index) => ({
+    id: `display-${index}`, // 临时 id，仅用于 React key
+    name: tagName
+  }));
+
+  // 加载完整标签对象（包含真实 id，用于编辑/删除）
+  const loadEditTags = async () => {
     try {
       const response = await fetch(`/api/tools/${tool.id}/tags`);
       const data = await response.json();
       if (data.success) {
-        setTags(data.tags);
+        setEditTags(data.tags);
       }
     } catch (error) {
       console.error('加载标签失败:', error);
@@ -49,7 +56,7 @@ const ToolCard = ({ tool }) => {
       isFeatured: tool.isFeatured,
       isNew: tool.isNew,
     });
-    await loadTags(); // 加载标签
+    await loadEditTags(); // 只在编辑时加载完整标签对象
     setEditModalVisible(true);
   };
 
@@ -88,7 +95,9 @@ const ToolCard = ({ tool }) => {
 
       const data = await response.json();
       if (data.success) {
-        setTags(data.tags);
+        setEditTags(data.tags);
+        // 立即更新全局状态，让卡片显示最新标签
+        updateToolTags(tool.id, data.tags.map(tag => tag.name));
         setNewTagInput('');
         setTagInputVisible(false);
         message.success('标签添加成功');
@@ -112,7 +121,9 @@ const ToolCard = ({ tool }) => {
 
       const data = await response.json();
       if (data.success) {
-        setTags(data.tags);
+        setEditTags(data.tags);
+        // 立即更新全局状态，让卡片显示最新标签
+        updateToolTags(tool.id, data.tags.map(tag => tag.name));
         message.success('标签删除成功');
       } else {
         message.error(data.error || '删除标签失败');
@@ -160,18 +171,28 @@ const ToolCard = ({ tool }) => {
 
   // 卡片内容
   const cardContent = (
-    <div className="tool-card" onClick={handleClick}>
-      <div className="tool-logo">
-        {tool.logo && <img src={tool.logo} alt={tool.name} />}
-      </div>
-      <div className="tool-info">
-        <h3 className="tool-name">{tool.name}</h3>
-        <p className="tool-desc">{tool.description}</p>
-        <div className="tool-meta">
-          <span>浏览: {tool.viewCount || 0}</span>
+    <Tooltip title={tool.description} placement="top" mouseEnterDelay={0.3}>
+      <div className="tool-card" onClick={handleClick}>
+        <div className="tool-logo">
+          {tool.logo && <img src={tool.logo} alt={tool.name} />}
+        </div>
+        <div className="tool-info">
+          <div className="tool-header">
+            <h3 className="tool-name">{tool.name}</h3>
+            <span className="tool-viewcount">浏览: {tool.viewCount || 0}</span>
+          </div>
+          {displayTags.length > 0 && (
+            <div className="tool-tags">
+              {displayTags.map((tag) => (
+                <Tag key={tag.id} color="blue" style={{ fontSize: '12px' }}>
+                  {tag.name}
+                </Tag>
+              ))}
+            </div>
+          )}
         </div>
       </div>
-    </div>
+    </Tooltip>
   );
 
   // 包装后的卡片（带或不带 Badge）
@@ -188,20 +209,14 @@ const ToolCard = ({ tool }) => {
 
   return (
     <>
-      <Tooltip
-        title={tool.description}
-        placement="top"
-        mouseEnterDelay={0.5}
+      <Dropdown
+        menu={{ items: menuItems }}
+        trigger={['contextMenu']}
       >
-        <Dropdown
-          menu={{ items: menuItems }}
-          trigger={['contextMenu']}
-        >
-          <div className="tool-card-wrapper">
-            {wrappedCard}
-          </div>
-        </Dropdown>
-      </Tooltip>
+        <div className="tool-card-wrapper">
+          {wrappedCard}
+        </div>
+      </Dropdown>
 
       {/* 编辑模态框 */}
       <Modal
@@ -212,7 +227,7 @@ const ToolCard = ({ tool }) => {
         okText="保存"
         cancelText="取消"
         width={600}
-        destroyOnClose
+        forceRender
       >
           <Form
             form={form}
@@ -275,7 +290,7 @@ const ToolCard = ({ tool }) => {
           {/* 标签管理 */}
           <Form.Item label="标签">
             <Space size={[8, 8]} wrap>
-              {tags.map((tag) => (
+              {editTags.map((tag) => (
                 <Tag
                   key={tag.id}
                   closable
