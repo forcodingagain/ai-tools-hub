@@ -181,5 +181,16 @@ export const useSettings = () => {
     }));
   };
 
-  return { settings, loading, error, incrementViewCount, updateTool, deleteTool, updateToolTags };
+  // 添加新工具（本地状态更新）
+  const addTool = (newTool) => {
+    setSettings(prevSettings => ({
+      ...prevSettings,
+      tools: [...prevSettings.tools, newTool]
+    }));
+
+    // 清除缓存，强制下次重新获取
+    settingsCache = null;
+  };
+
+  return { settings, loading, error, incrementViewCount, updateTool, deleteTool, updateToolTags, addTool };
 };

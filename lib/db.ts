@@ -258,5 +258,68 @@ export const dbHelpers = {
     const db = getDatabase();
     const stmt = db.prepare('SELECT id, name FROM tags ORDER BY name');
     return stmt.all() as Array<{ id: number; name: string }>;
+  },
+
+  /**
+   * 创建新工具
+   */
+  createTool: (data: {
+    name: string;
+    description?: string;
+    logo?: string;
+    url?: string;
+    categoryLegacyId: number;
+    is_featured?: number;
+    is_new?: number;
+    tags?: string[];
+  }): { id: number; legacy_id: number } => {
+    const db = getDatabase();
+
+    const transaction = db.transaction(() => {
+      // 1. 获取分类的真实 id
+      const categoryStmt = db.prepare('SELECT id FROM categories WHERE legacy_id = ? AND is_deleted = 0');
+      const category = categoryStmt.get(data.categoryLegacyId) as { id: number } | undefined;
+
+      if (!category) {
+        throw new Error(`分类不存在: ${data.categoryLegacyId}`);
+      }
+
+      // 2. 生成新的 legacy_id
+      const maxLegacyIdStmt = db.prepare('SELECT MAX(legacy_id) as maxId FROM tools');
+      const maxResult = maxLegacyIdStmt.get() as { maxId: number | null };
+      const newLegacyId = (maxResult.maxId || 0) + 1;
+
+      // 3. 插入工具
+      const insertStmt = db.prepare(`
+        INSERT INTO tools (
+          legacy_id, name, description, logo, url, category_id,
+          is_featured, is_new, added_date
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+      `);
+
+      const result = insertStmt.run(
+        newLegacyId,
+        data.name,
+        data.description || null,
+        data.logo || null,
+        data.url || null,
+        category.id,
+        data.is_featured || 0,
+        data.is_new || 0
+      );
+
+      const toolId = result.lastInsertRowid as number;
+
+      // 4. 添加标签
+      if (data.tags && data.tags.length > 0) {
+        for (const tagName of data.tags) {
+          dbHelpers.addTagToTool(toolId, tagName);
+        }
+      }
+
+      return { id: toolId, legacy_id: newLegacyId };
+    });
+
+    return transaction();
   }
 };

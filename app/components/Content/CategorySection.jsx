@@ -20,7 +20,7 @@ const CategorySection = ({ category }) => {
         <h2 className="category-title">{category.name}</h2>
         <span className="category-count">({categoryTools.length})</span>
       </div>
-      <ToolGrid tools={categoryTools} />
+      <ToolGrid tools={categoryTools} categoryId={category.id} />
     </section>
   );
 };
