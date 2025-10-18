@@ -59,7 +59,7 @@ export async function PUT(
 
 // DELETE /api/tools/[toolId] - 软删除工具
 export async function DELETE(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ toolId: string }> }
 ) {
   try {

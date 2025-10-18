@@ -1,31 +1,85 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+
+// 简单的内存缓存
+let settingsCache = null;
+let cacheTimestamp = 0;
+const CACHE_DURATION = 60 * 1000; // 60秒缓存（与API缓存协调）
 
 export const useSettings = () => {
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const loadSettings = async () => {
-      try {
-        // 从数据库 API 获取设置
-        const response = await fetch('/api/settings');
-        if (!response.ok) {
-          throw new Error('加载配置失败');
-        }
-        const data = await response.json();
+  // 优化的数据加载函数
+  const loadSettings = useCallback(async (forceRefresh = false) => {
+    const now = Date.now();
 
-        setSettings(data);
-        setLoading(false);
-      } catch (err) {
-        console.error('加载配置失败:', err);
+    // 检查缓存
+    if (!forceRefresh && settingsCache && (now - cacheTimestamp) < CACHE_DURATION) {
+      console.log('📦 使用缓存的数据');
+      setSettings(settingsCache);
+      setLoading(false);
+      return;
+    }
+
+    try {
+      console.log('🔄 从API获取数据');
+
+      // 使用 AbortController 支持请求取消
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000); // 8秒超时
+
+      const response = await fetch('/api/settings', {
+        signal: controller.signal,
+        headers: {
+          'Cache-Control': 'max-age=300', // 5分钟浏览器缓存
+        }
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+
+      // 更新缓存
+      settingsCache = data;
+      cacheTimestamp = now;
+
+      setSettings(data);
+      setError(null);
+    } catch (err) {
+      console.error('加载配置失败:', err);
+
+      // 如果有缓存数据，即使在出错时也返回缓存
+      if (settingsCache) {
+        console.log('📦 降级使用缓存数据');
+        setSettings(settingsCache);
+      } else {
         setError(err.message);
-        setLoading(false);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const initializeSettings = async () => {
+      if (isMounted) {
+        await loadSettings();
       }
     };
 
-    loadSettings();
-  }, []);
+    initializeSettings();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [loadSettings]);
 
   // 增加工具的浏览次数（调用数据库 API）
   const incrementViewCount = async (toolId) => {

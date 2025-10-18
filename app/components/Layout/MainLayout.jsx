@@ -1,17 +1,26 @@
-import { Layout, Button } from 'antd';
-import { useState, useEffect } from 'react';
+import { Layout, Button, Spin } from 'antd';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { MenuOutlined } from '@ant-design/icons';
-import Sidebar from './Sidebar';
-import Header from '../Header/Header';
-import FloatToolbar from './FloatToolbar';
-import SearchBar from '../Header/SearchBar';
-import TabWidget from '../Content/TabWidget';
-import CategorySection from '../Content/CategorySection';
-import ToolGrid from '../Content/ToolGrid';
 import { useSettingsContext } from '../../context/SettingsContext';
 import { useSearch } from '../../hooks/useSearch';
 import { useScrollSpy } from '../../hooks/useScrollSpy';
 import './MainLayout.css';
+
+// 简单的加载组件
+const LoadingFallback = () => (
+  <div style={{ padding: '50px', textAlign: 'center' }}>
+    <Spin size="large" />
+  </div>
+);
+
+// 懒加载重型组件
+const Sidebar = lazy(() => import('./Sidebar'));
+const Header = lazy(() => import('../Header/Header'));
+const FloatToolbar = lazy(() => import('./FloatToolbar'));
+const SearchBar = lazy(() => import('../Header/SearchBar'));
+const TabWidget = lazy(() => import('../Content/TabWidget'));
+const CategorySection = lazy(() => import('../Content/CategorySection'));
+const ToolGrid = lazy(() => import('../Content/ToolGrid'));
 
 const { Content } = Layout;
 
@@ -53,22 +62,26 @@ const MainLayout = () => {
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Sidebar
-        collapsed={collapsed}
-        onCollapse={setCollapsed}
-        drawerOpen={drawerOpen}
-        onDrawerClose={() => setDrawerOpen(false)}
-        currentCategory={currentCategory}
-      />
-      <Layout style={{ marginLeft: contentMarginLeft, transition: 'margin-left 0.3s' }}>
-        <Header
+      <Suspense fallback={<div style={{ width: isMobile ? '100%' : (collapsed ? 80 : 220), height: '100vh', background: '#f5f5f5' }} />}>
+        <Sidebar
           collapsed={collapsed}
-          onToggle={() => setCollapsed(!collapsed)}
+          onCollapse={setCollapsed}
+          drawerOpen={drawerOpen}
+          onDrawerClose={() => setDrawerOpen(false)}
           currentCategory={currentCategory}
-          isMobile={isMobile}
-          categories={settings.categories}
-          onCategoryClick={scrollToCategory}
         />
+      </Suspense>
+      <Layout style={{ marginLeft: contentMarginLeft, transition: 'margin-left 0.3s' }}>
+        <Suspense fallback={<div style={{ height: 64, background: '#fff', borderBottom: '1px solid #f0f0f0' }} />}>
+          <Header
+            collapsed={collapsed}
+            onToggle={() => setCollapsed(!collapsed)}
+            currentCategory={currentCategory}
+            isMobile={isMobile}
+            categories={settings.categories}
+            onCategoryClick={scrollToCategory}
+          />
+        </Suspense>
         <Content style={{ padding: '24px', overflow: 'auto' }}>
           <div className="main-content">
             {isMobile && (
@@ -97,24 +110,36 @@ const MainLayout = () => {
               {settings.siteConfig.siteName}
             </h1>
 
-            <SearchBar onSearch={handleSearch} />
+            <Suspense fallback={<LoadingFallback />}>
+              <SearchBar onSearch={handleSearch} />
+            </Suspense>
 
-            {!isSearching && <TabWidget />}
+            {!isSearching && (
+              <Suspense fallback={<LoadingFallback />}>
+                <TabWidget />
+              </Suspense>
+            )}
 
             {isSearching ? (
               <div className="search-results">
                 <h2 style={{ marginBottom: 24 }}>搜索结果 ({filteredTools.length})</h2>
-                <ToolGrid tools={filteredTools} />
+                <Suspense fallback={<LoadingFallback />}>
+                  <ToolGrid tools={filteredTools} />
+                </Suspense>
               </div>
             ) : (
               settings.categories.map(category => (
-                <CategorySection key={category.id} category={category} />
+                <Suspense key={category.id} fallback={<LoadingFallback />}>
+                  <CategorySection category={category} />
+                </Suspense>
               ))
             )}
           </div>
         </Content>
       </Layout>
-      <FloatToolbar />
+      <Suspense fallback={null}>
+        <FloatToolbar />
+      </Suspense>
     </Layout>
   );
 };

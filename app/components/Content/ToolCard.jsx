@@ -1,190 +1,325 @@
 'use client'
 
-import { useState } from 'react';
-import { Card, Tooltip, Dropdown, Modal, Form, Input, Select, App } from 'antd';
-import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { useState, useEffect } from 'react';
+import { Badge, Dropdown, Modal, Form, Input, Switch, App, Tooltip, Tag, Space } from 'antd';
+import { PlusOutlined, CloseOutlined } from '@ant-design/icons';
 import { useSettingsContext } from '../../context/SettingsContext';
 import './ToolCard.css';
 
-const { TextArea } = Input;
-
 const ToolCard = ({ tool }) => {
-  const { message, modal } = App.useApp();
-  const { incrementViewCount, updateTool, deleteTool, categories } = useSettingsContext();
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const { incrementViewCount, updateTool, deleteTool } = useSettingsContext();
+  const { modal, message } = App.useApp();
+  const [editModalVisible, setEditModalVisible] = useState(false);
   const [form] = Form.useForm();
+  const [tags, setTags] = useState([]);
+  const [newTagInput, setNewTagInput] = useState('');
+  const [tagInputVisible, setTagInputVisible] = useState(false);
 
-  // 左键点击打开链接
+  const showBadge = tool.isNew || tool.isFeatured;
+
+  // 加载标签
+  const loadTags = async () => {
+    try {
+      const response = await fetch(`/api/tools/${tool.id}/tags`);
+      const data = await response.json();
+      if (data.success) {
+        setTags(data.tags);
+      }
+    } catch (error) {
+      console.error('加载标签失败:', error);
+    }
+  };
+
+  // 左键点击 - 打开链接并增加浏览量
   const handleClick = (e) => {
-    // 增加浏览次数
+    e.stopPropagation();
     if (incrementViewCount) {
       incrementViewCount(tool.id);
     }
-    // 打开链接
     window.open(tool.url, '_blank');
   };
 
-  // 右键菜单点击
-  const handleMenuClick = (e) => {
-    e.domEvent.preventDefault();
-    e.domEvent.stopPropagation();
-
-    if (e.key === 'edit') {
-      // 打开编辑Modal
-      form.setFieldsValue({
-        name: tool.name,
-        description: tool.description,
-        url: tool.url,
-        logo: tool.logo,
-        categoryId: tool.categoryId,
-      });
-      setIsEditModalOpen(true);
-    } else if (e.key === 'delete') {
-      // 删除确认
-      modal.confirm({
-        title: '确认删除',
-        content: `确定要删除工具"${tool.name}"吗？此操作不可恢复。`,
-        okText: '确定',
-        okType: 'danger',
-        cancelText: '取消',
-        onOk: async () => {
-          try {
-            await deleteTool(tool.id);
-            message.success('删除成功');
-          } catch (error) {
-            message.error('删除失败');
-          }
-        },
-      });
-    }
+  // 编辑工具
+  const handleEdit = async () => {
+    form.setFieldsValue({
+      name: tool.name,
+      description: tool.description,
+      url: tool.url,
+      logo: tool.logo,
+      isFeatured: tool.isFeatured,
+      isNew: tool.isNew,
+    });
+    await loadTags(); // 加载标签
+    setEditModalVisible(true);
   };
 
-  // 提交编辑
-  const handleEditSubmit = async () => {
+  // 保存编辑
+  const handleSave = async () => {
     try {
       const values = await form.validateFields();
       await updateTool(tool.id, values);
       message.success('更新成功');
-      setIsEditModalOpen(false);
+      setEditModalVisible(false);
     } catch (error) {
-      if (error.errorFields) {
-        // 表单验证错误
-        return;
-      }
+      console.error('更新失败:', error);
       message.error('更新失败');
     }
   };
 
-  // 截断描述文本，保留6个字符
-  const truncateDescription = (text) => {
-    if (!text) return '';
-    return text.length > 6 ? text.substring(0, 6) + '...' : text;
+  // 添加标签
+  const handleAddTag = async () => {
+    const tagName = newTagInput.trim();
+    if (!tagName) {
+      message.warning('标签名称不能为空');
+      return;
+    }
+
+    if (tagName.length > 50) {
+      message.warning('标签名称不能超过50个字符');
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/tools/${tool.id}/tags`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tagName }),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        setTags(data.tags);
+        setNewTagInput('');
+        setTagInputVisible(false);
+        message.success('标签添加成功');
+      } else {
+        message.error(data.error || '添加标签失败');
+      }
+    } catch (error) {
+      console.error('添加标签失败:', error);
+      message.error('添加标签失败');
+    }
   };
 
+  // 删除标签
+  const handleRemoveTag = async (tagId) => {
+    try {
+      const response = await fetch(`/api/tools/${tool.id}/tags`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tagId }),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        setTags(data.tags);
+        message.success('标签删除成功');
+      } else {
+        message.error(data.error || '删除标签失败');
+      }
+    } catch (error) {
+      console.error('删除标签失败:', error);
+      message.error('删除标签失败');
+    }
+  };
+
+  // 删除工具
+  const handleDelete = () => {
+    modal.confirm({
+      title: '确认删除',
+      content: `确定要删除「${tool.name}」吗？此操作不可恢复。`,
+      okText: '确定',
+      cancelText: '取消',
+      okType: 'danger',
+      onOk: async () => {
+        try {
+          await deleteTool(tool.id);
+          message.success('删除成功');
+        } catch (error) {
+          console.error('删除失败:', error);
+          message.error('删除失败');
+        }
+      },
+    });
+  };
+
+  // 右键菜单项
   const menuItems = [
     {
       key: 'edit',
-      label: '编辑',
-      icon: <EditOutlined />,
+      label: '编辑工具',
+      onClick: handleEdit,
     },
     {
       key: 'delete',
-      label: '删除',
-      icon: <DeleteOutlined />,
+      label: '删除工具',
       danger: true,
+      onClick: handleDelete,
     },
   ];
 
+  // 卡片内容
+  const cardContent = (
+    <div className="tool-card" onClick={handleClick}>
+      <div className="tool-logo">
+        {tool.logo && <img src={tool.logo} alt={tool.name} />}
+      </div>
+      <div className="tool-info">
+        <h3 className="tool-name">{tool.name}</h3>
+        <p className="tool-desc">{tool.description}</p>
+        <div className="tool-meta">
+          <span>浏览: {tool.viewCount || 0}</span>
+        </div>
+      </div>
+    </div>
+  );
+
+  // 包装后的卡片（带或不带 Badge）
+  const wrappedCard = showBadge ? (
+    <Badge.Ribbon
+      text={tool.isNew ? "NEW" : "推荐"}
+      color={tool.isNew ? "cyan" : "volcano"}
+    >
+      {cardContent}
+    </Badge.Ribbon>
+  ) : (
+    cardContent
+  );
+
   return (
     <>
-      <Dropdown
-        menu={{
-          items: menuItems,
-          onClick: handleMenuClick,
-        }}
-        trigger={['contextMenu']}
+      <Tooltip
+        title={tool.description}
+        placement="top"
+        mouseEnterDelay={0.5}
       >
-        <Tooltip title={tool.description}>
-          <Card
-            hoverable
-            className="tool-card"
-            onClick={handleClick}
-            onContextMenu={(e) => e.preventDefault()}
-          >
-            <div className="tool-card-content">
-              <img
-                src={tool.logo}
-                alt={tool.name}
-                className="tool-logo"
-              />
-              <div className="tool-info">
-                <h4 className="tool-name">{tool.name}</h4>
-                <p className="tool-description">{truncateDescription(tool.description)}</p>
-              </div>
-            </div>
-          </Card>
-        </Tooltip>
-      </Dropdown>
+        <Dropdown
+          menu={{ items: menuItems }}
+          trigger={['contextMenu']}
+        >
+          <div className="tool-card-wrapper">
+            {wrappedCard}
+          </div>
+        </Dropdown>
+      </Tooltip>
 
+      {/* 编辑模态框 */}
       <Modal
         title="编辑工具"
-        open={isEditModalOpen}
-        onOk={handleEditSubmit}
-        onCancel={() => setIsEditModalOpen(false)}
-        okText="确定"
+        open={editModalVisible}
+        onOk={handleSave}
+        onCancel={() => setEditModalVisible(false)}
+        okText="保存"
         cancelText="取消"
+        width={600}
+        destroyOnClose
       >
-        <Form
-          form={form}
-          layout="vertical"
-          style={{ marginTop: 20 }}
-        >
+          <Form
+            form={form}
+            layout="vertical"
+            style={{ marginTop: 20 }}
+          >
           <Form.Item
+            label="工具名称"
             name="name"
-            label="标题"
-            rules={[{ required: true, message: '请输入标题' }]}
+            rules={[{ required: true, message: '请输入工具名称' }]}
           >
-            <Input placeholder="请输入工具标题" />
+            <Input placeholder="请输入工具名称" />
           </Form.Item>
 
           <Form.Item
+            label="工具描述"
             name="description"
-            label="简介"
+            rules={[{ required: true, message: '请输入工具描述' }]}
           >
-            <TextArea rows={3} placeholder="请输入工具简介" />
+            <Input.TextArea
+              placeholder="请输入工具描述"
+              rows={4}
+            />
           </Form.Item>
 
           <Form.Item
+            label="工具链接"
             name="url"
-            label="跳转链接"
             rules={[
+              { required: true, message: '请输入工具链接' },
               { type: 'url', message: '请输入有效的URL' }
             ]}
           >
-            <Input placeholder="https://example.com" />
+            <Input placeholder="https://..." />
           </Form.Item>
 
           <Form.Item
+            label="Logo URL"
             name="logo"
-            label="Logo链接"
-            rules={[
-              { type: 'url', message: '请输入有效的Logo URL' }
-            ]}
           >
-            <Input placeholder="https://example.com/logo.png" />
+            <Input placeholder="https://..." />
           </Form.Item>
 
           <Form.Item
-            name="categoryId"
-            label="分类"
+            label="是否推荐"
+            name="isFeatured"
+            valuePropName="checked"
           >
-            <Select placeholder="请选择分类">
-              {categories && categories.map(cat => (
-                <Select.Option key={cat.id} value={cat.id}>
-                  {cat.name}
-                </Select.Option>
+            <Switch />
+          </Form.Item>
+
+          <Form.Item
+            label="是否新品"
+            name="isNew"
+            valuePropName="checked"
+          >
+            <Switch />
+          </Form.Item>
+
+          {/* 标签管理 */}
+          <Form.Item label="标签">
+            <Space size={[8, 8]} wrap>
+              {tags.map((tag) => (
+                <Tag
+                  key={tag.id}
+                  closable
+                  onClose={(e) => {
+                    e.preventDefault();
+                    handleRemoveTag(tag.id);
+                  }}
+                  color="blue"
+                >
+                  {tag.name}
+                </Tag>
               ))}
-            </Select>
+
+              {tagInputVisible ? (
+                <Input
+                  type="text"
+                  size="small"
+                  style={{ width: 120 }}
+                  value={newTagInput}
+                  onChange={(e) => setNewTagInput(e.target.value)}
+                  onBlur={() => {
+                    if (newTagInput.trim()) {
+                      handleAddTag();
+                    } else {
+                      setTagInputVisible(false);
+                    }
+                  }}
+                  onPressEnter={handleAddTag}
+                  placeholder="输入标签名称"
+                  autoFocus
+                />
+              ) : (
+                <Tag
+                  onClick={() => setTagInputVisible(true)}
+                  style={{
+                    background: '#fff',
+                    borderStyle: 'dashed',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <PlusOutlined /> 新增标签
+                </Tag>
+              )}
+            </Space>
           </Form.Item>
         </Form>
       </Modal>

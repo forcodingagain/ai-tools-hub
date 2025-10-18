@@ -33,6 +33,12 @@ export function getDatabase(): Database.Database {
     // 启用 WAL 模式（提升并发性能）
     db.pragma('journal_mode = WAL');
 
+    // 优化数据库性能
+    db.pragma('synchronous = NORMAL'); // 平衡性能和安全性
+    db.pragma('cache_size = 10000'); // 增大缓存
+    db.pragma('temp_store = MEMORY'); // 临时表存储在内存
+    db.pragma('mmap_size = 268435456'); // 256MB 内存映射
+
     console.log('✅ 数据库连接已建立:', dbPath);
   }
 
@@ -192,5 +198,65 @@ export const dbHelpers = {
       description: config.description,
       keywords: keywords.map(k => k.keyword)
     };
+  },
+
+  /**
+   * 获取工具的标签
+   */
+  getToolTags: (toolId: number): Array<{ id: number; name: string }> => {
+    const db = getDatabase();
+    const stmt = db.prepare(`
+      SELECT t.id, t.name
+      FROM tags t
+      JOIN tool_tags tt ON t.id = tt.tag_id
+      WHERE tt.tool_id = ?
+      ORDER BY t.name
+    `);
+    return stmt.all(toolId) as Array<{ id: number; name: string }>;
+  },
+
+  /**
+   * 为工具添加标签（如果标签不存在则创建）
+   */
+  addTagToTool: (toolId: number, tagName: string): void => {
+    const db = getDatabase();
+
+    const transaction = db.transaction(() => {
+      // 查找或创建标签
+      let tag = db.prepare('SELECT id FROM tags WHERE name = ? COLLATE NOCASE').get(tagName) as { id: number } | undefined;
+
+      if (!tag) {
+        const insertTag = db.prepare('INSERT INTO tags (name) VALUES (?)');
+        const result = insertTag.run(tagName);
+        tag = { id: result.lastInsertRowid as number };
+      }
+
+      // 添加关联（如果不存在）
+      const insertRelation = db.prepare(`
+        INSERT OR IGNORE INTO tool_tags (tool_id, tag_id)
+        VALUES (?, ?)
+      `);
+      insertRelation.run(toolId, tag.id);
+    });
+
+    transaction();
+  },
+
+  /**
+   * 从工具移除标签
+   */
+  removeTagFromTool: (toolId: number, tagId: number): void => {
+    const db = getDatabase();
+    const stmt = db.prepare('DELETE FROM tool_tags WHERE tool_id = ? AND tag_id = ?');
+    stmt.run(toolId, tagId);
+  },
+
+  /**
+   * 获取所有标签
+   */
+  getAllTags: (): Array<{ id: number; name: string }> => {
+    const db = getDatabase();
+    const stmt = db.prepare('SELECT id, name FROM tags ORDER BY name');
+    return stmt.all() as Array<{ id: number; name: string }>;
   }
 };

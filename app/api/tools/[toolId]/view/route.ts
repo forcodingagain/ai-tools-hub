@@ -3,7 +3,7 @@ import { dbHelpers } from '@/lib/db'
 
 // POST /api/tools/[toolId]/view - 增加工具浏览量
 export async function POST(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ toolId: string }> }
 ) {
   try {
