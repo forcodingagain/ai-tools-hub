@@ -1,10 +1,25 @@
-import { createContext, useContext } from 'react';
+import { createContext, useContext, useMemo } from 'react';
 import { useSettings } from '../hooks/useSettings';
 
 const SettingsContext = createContext(null);
 
 export const SettingsProvider = ({ children }) => {
   const { settings, loading, error, incrementViewCount, updateTool, deleteTool, updateToolTags, addTool, updateCategoryOrder } = useSettings();
+
+  // ✅ 使用 useMemo 稳定化 context value，避免不必要的重渲染
+  const value = useMemo(() => {
+    if (!settings) return null;
+
+    return {
+      ...settings,
+      incrementViewCount,
+      updateTool,
+      deleteTool,
+      updateToolTags,
+      addTool,
+      updateCategoryOrder
+    };
+  }, [settings, incrementViewCount, updateTool, deleteTool, updateToolTags, addTool, updateCategoryOrder]);
 
   // 数据加载中，不显示任何内容（依赖 layout.tsx 的全局加载动画）
   if (loading) {
@@ -27,7 +42,7 @@ export const SettingsProvider = ({ children }) => {
   }
 
   return (
-    <SettingsContext.Provider value={{ ...settings, incrementViewCount, updateTool, deleteTool, updateToolTags, addTool, updateCategoryOrder }}>
+    <SettingsContext.Provider value={value}>
       {children}
     </SettingsContext.Provider>
   );

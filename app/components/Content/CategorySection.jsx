@@ -4,6 +4,21 @@ import ToolGrid from './ToolGrid';
 import { getIcon } from '../../utils/iconMap';
 import './CategorySection.css';
 
+/**
+ * CategorySection 自定义比较函数
+ * 只在 category 的关键属性变化时重渲染
+ */
+const arePropsEqual = (prevProps, nextProps) => {
+  const prev = prevProps.category;
+  const next = nextProps.category;
+
+  return (
+    prev.id === next.id &&
+    prev.name === next.name &&
+    prev.icon === next.icon
+  );
+};
+
 const CategorySection = memo(({ category }) => {
   const settings = useSettingsContext();
 
@@ -32,7 +47,7 @@ const CategorySection = memo(({ category }) => {
       <ToolGrid tools={categoryTools} categoryId={category.id} />
     </section>
   );
-});
+}, arePropsEqual); // ✅ 使用自定义比较函数
 
 // 添加 displayName 便于调试
 CategorySection.displayName = 'CategorySection';

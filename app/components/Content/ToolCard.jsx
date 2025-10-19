@@ -6,6 +6,30 @@ import { PlusOutlined } from '@ant-design/icons';
 import { useSettingsContext } from '../../context/SettingsContext';
 import './ToolCard.css';
 
+/**
+ * 自定义比较函数 - 只在关键属性变化时重渲染
+ * 这样可以避免 Context 中无关数据变化导致的重渲染
+ */
+const arePropsEqual = (prevProps, nextProps) => {
+  const prev = prevProps.tool;
+  const next = nextProps.tool;
+
+  // 只比较影响渲染的字段
+  return (
+    prev.id === next.id &&
+    prev.name === next.name &&
+    prev.description === next.description &&
+    prev.logo === next.logo &&
+    prev.url === next.url &&
+    prev.viewCount === next.viewCount &&
+    prev.isNew === next.isNew &&
+    prev.isFeatured === next.isFeatured &&
+    prev.categoryId === next.categoryId &&
+    // 标签比较（数组）
+    JSON.stringify(prev.tags) === JSON.stringify(next.tags)
+  );
+};
+
 const ToolCard = memo(({ tool }) => {
   const { incrementViewCount, updateTool, deleteTool, updateToolTags, categories } = useSettingsContext();
   const { modal, message } = App.useApp();
@@ -379,7 +403,7 @@ const ToolCard = memo(({ tool }) => {
       </Modal>
     </>
   );
-});
+}, arePropsEqual); // ✅ 使用自定义比较函数
 
 // 添加 displayName 便于调试
 ToolCard.displayName = 'ToolCard';

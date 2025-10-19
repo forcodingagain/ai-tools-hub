@@ -6,6 +6,13 @@ import { PlusOutlined } from '@ant-design/icons';
 import { useSettingsContext } from '../../context/SettingsContext';
 import './AddToolCard.css';
 
+/**
+ * AddToolCard 只依赖 categoryId,只在 categoryId 变化时重渲染
+ */
+const arePropsEqual = (prevProps, nextProps) => {
+  return prevProps.categoryId === nextProps.categoryId;
+};
+
 const AddToolCard = memo(({ categoryId }) => {
   const { addTool } = useSettingsContext();
   const { message } = App.useApp();
@@ -218,7 +225,7 @@ const AddToolCard = memo(({ categoryId }) => {
       </Modal>
     </>
   );
-});
+}, arePropsEqual); // ✅ 使用自定义比较函数
 
 // 添加 displayName 便于调试
 AddToolCard.displayName = 'AddToolCard';
