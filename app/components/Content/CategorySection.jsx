@@ -1,6 +1,6 @@
 import { useMemo, memo } from 'react';
 import { useSettingsContext } from '../../context/SettingsContext';
-import ToolGrid from './ToolGrid';
+import VirtualGrid from './VirtualGrid';
 import { getIcon } from '../../utils/iconMap';
 import './CategorySection.css';
 
@@ -44,7 +44,10 @@ const CategorySection = memo(({ category }) => {
         <h2 className="category-title">{category.name}</h2>
         <span className="category-count">({categoryTools.length})</span>
       </div>
-      <ToolGrid tools={categoryTools} categoryId={category.id} />
+      <VirtualGrid
+        tools={categoryTools}
+        categoryId={category.id}
+      />
     </section>
   );
 }, arePropsEqual); // ✅ 使用自定义比较函数

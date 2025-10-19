@@ -27,10 +27,10 @@ const Sidebar = ({
     // 侧边栏内容
     const sidebarContent = (
         <>
-            <div className="sidebar-header">
-                <h2 className="logo">
+            <div className={`sidebar-header ${collapsed ? 'collapsed' : ''}`}>
+                <h2 className={`logo ${collapsed ? 'collapsed' : ''}`}>
                     <div className="logo-icon">AI</div>
-                    {!collapsed && <span>AI导航门户</span>}
+                    {!collapsed && <span>AI站点</span>}
                 </h2>
             </div>
             <CategoryMenu

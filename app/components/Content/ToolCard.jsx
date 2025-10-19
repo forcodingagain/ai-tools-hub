@@ -4,6 +4,7 @@ import { useState, useMemo, useCallback, memo } from 'react';
 import { Badge, Dropdown, Modal, Form, Input, Switch, App, Tag, Space, Tooltip, Select } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { useSettingsContext } from '../../context/SettingsContext';
+import LazyImage from './LazyImage';
 import './ToolCard.css';
 
 /**
@@ -26,11 +27,13 @@ const arePropsEqual = (prevProps, nextProps) => {
     prev.isFeatured === next.isFeatured &&
     prev.categoryId === next.categoryId &&
     // 标签比较（数组）
-    JSON.stringify(prev.tags) === JSON.stringify(next.tags)
+    JSON.stringify(prev.tags) === JSON.stringify(next.tags) &&
+    // index比较（影响优先级）
+    prev.index === next.index
   );
 };
 
-const ToolCard = memo(({ tool }) => {
+const ToolCard = memo(({ tool, index = 0 }) => {
   const { incrementViewCount, updateTool, deleteTool, updateToolTags, categories } = useSettingsContext();
   const { modal, message } = App.useApp();
   const [editModalVisible, setEditModalVisible] = useState(false);
@@ -211,13 +214,17 @@ const ToolCard = memo(({ tool }) => {
     <Tooltip title={tool.description} placement="top" mouseEnterDelay={0.3}>
       <div className="tool-card" onClick={handleClick}>
         <div className="tool-logo">
-          {tool.logo && (
-            <img
+          {tool.logo ? (
+            <LazyImage
               src={tool.logo}
               alt={tool.name}
-              loading="lazy"
-              decoding="async"
+              className="tool-logo-img"
+              priority={index < 6} // 前6个工具设为高优先级
             />
+          ) : (
+            <div className="tool-logo-placeholder">
+              {tool.name.charAt(0).toUpperCase()}
+            </div>
           )}
         </div>
         <div className="tool-info">

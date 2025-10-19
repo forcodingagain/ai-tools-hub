@@ -9,14 +9,16 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  height: 100%;
+  height: 90px !important; /* 强制设置固定高度，与AddToolCard保持一致 */
+  width: 100%;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 .tool-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  /* 移除translateY避免顶部边框被裁剪 */
   border-color: var(--primary-color, #1890ff);
+  box-shadow: 0 2px 8px rgba(24, 144, 255, 0.2); /* 添加蓝色阴影增强高亮效果 */
 }
 
 /* Logo容器 */
@@ -36,6 +38,26 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* LazyImage 样式覆盖 */
+.tool-logo .tool-logo-img {
+  width: 100%;
+  height: 100%;
+}
+
+/* 占位符样式 */
+.tool-logo-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1890ff, #40a9ff);
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  border-radius: 8px;
 }
 
 /* 工具信息 */
@@ -89,7 +111,8 @@
 /* Badge Ribbon 样式调整 */
 .tool-card-wrapper {
   position: relative;
-  height: 100%;
+  height: 100%; /* 填满父容器virtual-grid-item */
+  width: 100%;
 }
 
 .tool-card-wrapper .ant-ribbon {

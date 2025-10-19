@@ -9,19 +9,34 @@
   margin: 4px 8px;
   border-radius: 8px;
   cursor: move;
-  transition: all 0.3s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   user-select: none;
   position: relative;
+  /* 优化动画性能 */
+  will-change: transform, opacity;
+  transform: translateZ(0); /* 强制GPU加速 */
 }
 
 .category-menu-item:hover {
   background: rgba(24, 144, 255, 0.08);
 }
 
+/* 收缩状态下的悬停样式 */
+.category-menu-item.collapsed:hover {
+  background: rgba(24, 144, 255, 0.08);
+  border-radius: 4px;
+}
+
 .category-menu-item.active {
   background: rgba(24, 144, 255, 0.15);
   color: #1890ff;
   font-weight: 500;
+}
+
+/* 收缩状态下的激活样式 */
+.category-menu-item.collapsed.active {
+  background: rgba(24, 144, 255, 0.15);
+  border-radius: 4px;
 }
 
 .category-menu-item.dragging {
@@ -33,19 +48,37 @@
   padding-top: 10px;
 }
 
+/* 收缩状态下的拖拽样式覆盖 */
+.category-menu-item.collapsed.drag-over {
+  border-top: none;
+  border-right: 2px solid #1890ff;
+  padding-top: 12px;
+  padding-right: 6px;
+}
+
 .category-menu-item.collapsed {
   justify-content: center;
-  padding: 12px 0;
+  padding: 12px 8px;
+  margin: 4px 4px;
 }
 
 .category-icon {
   font-size: 16px;
   margin-right: 12px;
   flex-shrink: 0;
+  transition: margin-right 0.3s ease;
 }
 
 .category-menu-item.collapsed .category-icon {
   margin-right: 0;
+}
+
+/* 确保收缩状态下图标正确居中 */
+.category-menu-item.collapsed .category-icon {
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .category-name {

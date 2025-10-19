@@ -5,6 +5,11 @@
   align-items: center;
   justify-content: center;
   min-height: 64px;
+  transition: padding 0.3s ease;
+}
+
+.sidebar-header.collapsed {
+  padding: 20px 8px;
 }
 
 .logo {
@@ -19,12 +24,18 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.logo.collapsed {
+  justify-content: center;
+  gap: 0;
 }
 
 .logo-icon {
   width: 32px;
   height: 32px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #40a9ff 0%, #1890ff 50%, #096dd9 100%);
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -33,6 +44,15 @@
   font-weight: bold;
   font-size: 18px;
   flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(24, 144, 255, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  /* 优化动画性能 */
+  transform: translateZ(0);
+}
+
+.logo:hover .logo-icon {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(24, 144, 255, 0.4);
 }
 
 .sidebar-trigger {
@@ -73,6 +93,10 @@
   overflow-y: auto;
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE/Edge */
+  /* 确保平滑过渡 */
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  /* 优化动画性能 */
+  will-change: transform;
 }
 
 /* 隐藏滚动条 - Webkit浏览器 (Chrome, Safari) */

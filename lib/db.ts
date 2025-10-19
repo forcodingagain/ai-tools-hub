@@ -163,13 +163,20 @@ let preparedStatements: PreparedStatements = {
 
 let statementsInitialized = false;
 
+// 添加调试日志
+console.log('🔧 数据库模块初始化中...');
+
 /**
  * 初始化数据库连接
  * 使用 globalThis 存储单例，避免 Next.js HMR 导致的内存泄漏
  */
 function initDatabase(): Database.Database {
+  console.log('🔧 开始初始化数据库连接...');
   const dbPath = path.join(process.cwd(), 'ai_tools.db');
   const database = new Database(dbPath);
+
+  console.log('📁 数据库文件路径:', dbPath);
+  console.log('🔗 数据库连接已创建');
 
   // 启用外键约束（必须！）
   database.pragma('foreign_keys = ON');
@@ -183,8 +190,12 @@ function initDatabase(): Database.Database {
   database.pragma('temp_store = MEMORY'); // 临时表存储在内存
   database.pragma('mmap_size = 268435456'); // 256MB 内存映射
 
+  console.log('⚙️ 数据库配置已设置');
+
   // ✅ 初始化预编译语句（必须在返回前调用）
+  console.log('🚀 开始初始化预编译语句...');
   initPreparedStatements(database);
+  console.log('✅ 预编译语句初始化完成');
 
   console.log('✅ 数据库连接已建立:', dbPath);
 
@@ -252,8 +263,13 @@ if (typeof process !== 'undefined') {
  * 初始化预编译语句
  */
 function initPreparedStatements(database: Database.Database): void {
-  if (statementsInitialized) return; // 避免重复初始化
+  console.log('🔧 开始初始化预编译语句...');
+  if (statementsInitialized) {
+    console.log('⚠️ 预编译语句已初始化，跳过重复初始化');
+    return; // 避免重复初始化
+  }
   statementsInitialized = true;
+  console.log('✅ statementsInitialized 标志已设置');
   preparedStatements.getActiveTools = database.prepare(`
     SELECT
       t.id,
@@ -366,7 +382,17 @@ function initPreparedStatements(database: Database.Database): void {
     LIMIT ?
   `);
 
-  console.log('✅ 预编译语句已初始化');
+  // ✅ 验证预编译语句是否正确初始化
+  console.log('🔍 验证预编译语句初始化...');
+  for (const [key, stmt] of Object.entries(preparedStatements)) {
+    if (stmt === null) {
+      console.error(`❌ 预编译语句 ${key} 未初始化!`);
+    } else {
+      console.log(`✅ 预编译语句 ${key} 已初始化`);
+    }
+  }
+
+  console.log('✅ 预编译语句已初始化完成');
 }
 
 /**
@@ -377,9 +403,14 @@ export const dbHelpers = {
    * 获取所有活跃工具（使用预编译语句）
    */
   getActiveTools: () => {
+    if (!preparedStatements.getActiveTools || !preparedStatements.getToolTags) {
+      console.error('❌ getActiveTools 或 getToolTags 预编译语句未初始化!');
+      throw new Error('数据库未正确初始化');
+    }
+
     // ✅ 使用预编译语句
-    const tools = preparedStatements.getActiveTools!.all() as any[];
-    const tagsResult = preparedStatements.getToolTags!.all() as Array<{ tool_id: number; tags: string }>;
+    const tools = preparedStatements.getActiveTools.all() as any[];
+    const tagsResult = preparedStatements.getToolTags.all() as Array<{ tool_id: number; tags: string }>;
 
     // 构建标签映射
     const tagsMap = new Map<number, string>();
@@ -399,7 +430,11 @@ export const dbHelpers = {
    * @param legacyId - 数字类型的 legacy_id (如 1, 2, 3...)
    */
   getToolIdByLegacyId: (legacyId: number): number | null => {
-    const result = preparedStatements.getToolIdByLegacyId!.get(legacyId) as { id: number } | undefined;
+    if (!preparedStatements.getToolIdByLegacyId) {
+      console.error('❌ getToolIdByLegacyId 预编译语句未初始化!');
+      throw new Error('数据库未正确初始化');
+    }
+    const result = preparedStatements.getToolIdByLegacyId.get(legacyId) as { id: number } | undefined;
     return result ? result.id : null;
   },
 
@@ -492,15 +527,28 @@ export const dbHelpers = {
    * 获取所有活跃分类（使用预编译语句）
    */
   getActiveCategories: () => {
-    return preparedStatements.getActiveCategories!.all();
+    if (!preparedStatements.getActiveCategories) {
+      console.error('❌ getActiveCategories 预编译语句未初始化!');
+      throw new Error('数据库未正确初始化');
+    }
+    return preparedStatements.getActiveCategories.all();
   },
 
   /**
    * 获取站点配置（使用预编译语句）
    */
   getSiteConfig: () => {
-    const config = preparedStatements.getSiteConfig!.get() as any;
-    const keywords = preparedStatements.getSiteKeywords!.all() as Array<{ keyword: string }>;
+    if (!preparedStatements.getSiteConfig) {
+      console.error('❌ getSiteConfig 预编译语句未初始化!');
+      throw new Error('数据库未正确初始化');
+    }
+    const config = preparedStatements.getSiteConfig.get() as any;
+
+    if (!preparedStatements.getSiteKeywords) {
+      console.error('❌ getSiteKeywords 预编译语句未初始化!');
+      throw new Error('数据库未正确初始化');
+    }
+    const keywords = preparedStatements.getSiteKeywords.all() as Array<{ keyword: string }>;
 
     return {
       siteName: config.site_name,

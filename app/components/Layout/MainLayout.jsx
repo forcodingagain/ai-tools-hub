@@ -126,8 +126,7 @@ const MainLayout = () => {
     };
   }, [isSearching, visibleCategoryCount, settings.categories.length, isLoadingMore]);
 
-  // 计算主内容区的marginLeft
-  const contentMarginLeft = isMobile ? 0 : (collapsed ? 80 : 220);
+  // 计算主内容区的transform，避免频繁的DOM操作和布局变化带来的性能问题
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -138,7 +137,7 @@ const MainLayout = () => {
         onDrawerClose={() => setDrawerOpen(false)}
         currentCategory={currentCategory}
       />
-      <Layout style={{ marginLeft: contentMarginLeft, transition: 'margin-left 0.3s' }}>
+      <Layout style={{ marginLeft: isMobile ? 0 : (collapsed ? 80 : 220) }}>
         <Header
           collapsed={collapsed}
           onToggle={() => setCollapsed(!collapsed)}
@@ -147,7 +146,7 @@ const MainLayout = () => {
           categories={settings.categories}
           onCategoryClick={scrollToCategory}
         />
-        <Content style={{ padding: '24px', overflow: 'auto' }}>
+        <Content style={{ padding: '0', overflow: 'hidden' }}>
           <div className="main-content">
             {isMobile && (
               <Button

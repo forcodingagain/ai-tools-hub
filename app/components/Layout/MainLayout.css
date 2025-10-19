@@ -1,6 +1,10 @@
 .main-content {
   max-width: 1400px;
   margin: 0 auto;
+  overflow: hidden;
+  box-sizing: border-box;
+  padding: 0 24px;
+  width: 100%; /* 确保填满可用空间 */
 }
 
 /* 移动端菜单按钮 */

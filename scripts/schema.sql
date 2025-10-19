@@ -231,7 +231,7 @@ GROUP BY c.id;
 
 -- 插入站点配置（占位，迁移时会覆盖）
 INSERT INTO site_config (id, site_name, description)
-VALUES (1, 'AI导航门户', '收录全球优秀 AI 工具');
+VALUES (1, 'AI站点', '收录全球优秀 AI 工具');
 
 -- ============================================
 -- 数据库版本信息

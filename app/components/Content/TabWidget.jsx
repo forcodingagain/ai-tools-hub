@@ -19,9 +19,9 @@ const TabWidget = () => {
         <span className="tab-widget-title">常用工具</span>
       </div>
       <div className="tab-tools-grid">
-        {featuredTools.map(tool => (
+        {featuredTools.map((tool, index) => (
           <div key={tool.id} className="tab-tool-item">
-            <ToolCard tool={tool} />
+            <ToolCard tool={tool} index={index} />
           </div>
         ))}
       </div>

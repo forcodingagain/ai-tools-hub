@@ -1,0 +1,45 @@
+.virtual-grid-container {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.virtual-grid-rows {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.virtual-grid-row {
+  display: contents; /* 让CSS Grid直接控制项目布局 */
+}
+
+.virtual-grid-item {
+  height: 90px;
+  width: 100%;
+  min-width: 0; /* 防止内容溢出 */
+  box-sizing: border-box;
+}
+
+/* 响应式布局 - 与ToolGrid保持一致 */
+@media (max-width: 1400px) {
+  .virtual-grid-rows {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 1200px) {
+  .virtual-grid-rows {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .virtual-grid-rows {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+

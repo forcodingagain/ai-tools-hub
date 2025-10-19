@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "main": "index.js",
     "scripts": {
-        "dev": "cross-env NODE_OPTIONS='--max-old-space-size=2048' NODE_ENV=development next dev --turbo",
+        "dev": "cross-env NODE_OPTIONS='--max-old-space-size=2048' NODE_ENV=development next dev",
         "dev:turbo": "cross-env NODE_OPTIONS='--max-old-space-size=2048' NODE_ENV=development next dev --turbo",
         "dev:fast": "cross-env NODE_OPTIONS='--max-old-space-size=2048' next dev --turbo",
         "dev:optimized": "cross-env NODE_OPTIONS='--max-old-space-size=2048' NODE_ENV=development next dev --turbo",

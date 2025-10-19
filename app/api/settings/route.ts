@@ -5,7 +5,7 @@ import { withErrorHandler, createSuccessResponse } from '@/lib/error-handler';
 // 全局缓存 - 缩短缓存时间，与客户端 SWR 策略协调
 let cache: any = null;
 let cacheTime = 0;
-const CACHE_DURATION = 30 * 1000; // ✅ 30秒缓存（从5分钟降低）
+const CACHE_DURATION = 300 * 1000; // ✅ 5分钟缓存（从10秒延长到5分钟）
 
 // 将数据库蛇形命名转换为前端驼峰命名
 function transformTool(tool: any, categoryIdMap: Map<number, number>) {

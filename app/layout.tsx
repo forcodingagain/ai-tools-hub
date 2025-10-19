@@ -4,7 +4,7 @@ import AntdProvider from './components/AntdProvider'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'AI导航门户',
+  title: 'AI站点',
   description: '收录全球优秀 AI 工具',
 }
 
@@ -99,7 +99,7 @@ export default function RootLayout({
         {/* 纯 HTML/CSS 加载页面 - 在 React 编译前显示 */}
         <div id="global-loading">
           <div className="loading-spinner"></div>
-          <div className="loading-text">正在加载 AI 工具导航...</div>
+          <div className="loading-text">正在加载 AI 站点...</div>
           <div className="loading-skeleton">
             <div className="skeleton-line" style={{width: '60%', margin: '0 auto'}}></div>
             <div className="skeleton-line" style={{width: '80%', margin: '20px auto'}}></div>

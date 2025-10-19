@@ -13,7 +13,7 @@ const arePropsEqual = (prevProps, nextProps) => {
   return prevProps.categoryId === nextProps.categoryId;
 };
 
-const AddToolCard = memo(({ categoryId }) => {
+const AddToolCard = memo(({ categoryId, style: propStyle = {} }) => {
   const { addTool } = useSettingsContext();
   const { message } = App.useApp();
   const [modalVisible, setModalVisible] = useState(false);
@@ -96,7 +96,11 @@ const AddToolCard = memo(({ categoryId }) => {
 
   return (
     <>
-      <div className="add-tool-card" onClick={handleClick}>
+      <div
+        className="add-tool-card"
+        style={{ height: '90px', width: '100%', ...propStyle }}
+        onClick={handleClick}
+      >
         <PlusOutlined className="add-tool-icon" />
         <span className="add-tool-text">添加工具</span>
       </div>

@@ -42,9 +42,9 @@ const ToolGrid = memo(({ tools, categoryId }) => {
 
       {/* 工具列表 */}
       {tools && tools.length > 0 ? (
-        tools.map(tool => (
+        tools.map((tool, index) => (
           <div key={tool.id} className="tool-grid-item">
-            <ToolCard tool={tool} />
+            <ToolCard tool={tool} index={index} />
           </div>
         ))
       ) : null}

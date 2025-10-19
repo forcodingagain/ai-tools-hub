@@ -32,7 +32,7 @@ const nextConfig = {
     parallelServerCompiles: true,
 
     // CSS 代码分割策略
-    cssChunking: 'strict',
+    cssChunking: false, // 禁用CSS代码分割，避免样式分离问题
 
     // Webpack 内存优化（减少构建内存使用）
     webpackMemoryOptimizations: true,
@@ -55,6 +55,25 @@ const nextConfig = {
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    // 允许外部图片域名（请根据实际情况添加）
+    domains: [
+      'avatars.githubusercontent.com',
+      'cdn.jsdelivr.net',
+      'raw.githubusercontent.com',
+      'picsum.photos',
+      'via.placeholder.com',
+      'images.unsplash.com',
+      'img.shields.io',
+      'badgen.net',
+      // 添加更多根据你的工具图标域名
+    ],
+    // 允许远程图片模式（如果图标来自各种域名）
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+    ],
   },
 
   // ============================================

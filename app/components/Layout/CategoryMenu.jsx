@@ -1,19 +1,19 @@
 'use client'
 
-import { useState } from 'react';
+import { useState, memo, useCallback } from 'react';
 import { App } from 'antd';
 import * as Icons from '@ant-design/icons';
 import { useSettingsContext } from '../../context/SettingsContext';
 import './CategoryMenu.css';
 
-const CategoryMenu = ({ onMenuClick, collapsed, currentCategory }) => {
+const CategoryMenu = memo(({ onMenuClick, collapsed, currentCategory }) => {
   const settings = useSettingsContext();
   const { updateCategoryOrder } = useSettingsContext();
   const { message } = App.useApp();
   const [draggedIndex, setDraggedIndex] = useState(null);
   const [dragOverIndex, setDragOverIndex] = useState(null);
 
-  const scrollToSection = (categoryId) => {
+  const scrollToSection = useCallback((categoryId) => {
     const element = document.getElementById(`category-${categoryId}`);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -22,30 +22,30 @@ const CategoryMenu = ({ onMenuClick, collapsed, currentCategory }) => {
     if (onMenuClick) {
       onMenuClick();
     }
-  };
+  }, [onMenuClick]);
 
   // 拖拽开始
-  const handleDragStart = (e, index) => {
+  const handleDragStart = useCallback((e, index) => {
     setDraggedIndex(index);
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/html', e.currentTarget);
-  };
+  }, []);
 
   // 拖拽结束
-  const handleDragEnd = () => {
+  const handleDragEnd = useCallback(() => {
     setDraggedIndex(null);
     setDragOverIndex(null);
-  };
+  }, []);
 
   // 拖拽经过
-  const handleDragOver = (e, index) => {
+  const handleDragOver = useCallback((e, index) => {
     e.preventDefault();
     if (draggedIndex === index) return;
     setDragOverIndex(index);
-  };
+  }, [draggedIndex]);
 
   // 放置
-  const handleDrop = async (e, dropIndex) => {
+  const handleDrop = useCallback(async (e, dropIndex) => {
     e.preventDefault();
 
     if (draggedIndex === null || draggedIndex === dropIndex) {
@@ -86,7 +86,7 @@ const CategoryMenu = ({ onMenuClick, collapsed, currentCategory }) => {
 
     setDraggedIndex(null);
     setDragOverIndex(null);
-  };
+  }, [draggedIndex, settings.categories, updateCategoryOrder, message]);
 
   return (
     <div className="category-menu">
@@ -115,6 +115,7 @@ const CategoryMenu = ({ onMenuClick, collapsed, currentCategory }) => {
       })}
     </div>
   );
-};
+});
 
 export default CategoryMenu;
+
