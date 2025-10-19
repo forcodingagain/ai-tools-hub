@@ -1,13 +1,13 @@
 'use client'
 
 import { useState, useMemo, useCallback, memo } from 'react';
-import { Badge, Dropdown, Modal, Form, Input, Switch, App, Tag, Space, Tooltip } from 'antd';
+import { Badge, Dropdown, Modal, Form, Input, Switch, App, Tag, Space, Tooltip, Select } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { useSettingsContext } from '../../context/SettingsContext';
 import './ToolCard.css';
 
 const ToolCard = memo(({ tool }) => {
-  const { incrementViewCount, updateTool, deleteTool, updateToolTags } = useSettingsContext();
+  const { incrementViewCount, updateTool, deleteTool, updateToolTags, categories } = useSettingsContext();
   const { modal, message } = App.useApp();
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [form] = Form.useForm();
@@ -58,18 +58,28 @@ const ToolCard = memo(({ tool }) => {
       logo: tool.logo,
       isFeatured: tool.isFeatured,
       isNew: tool.isNew,
+      categoryId: tool.categoryId, // 添加分类字段
     });
     await loadEditTags(); // 只在编辑时加载完整标签对象
     setEditModalVisible(true);
-  }, [form, tool.name, tool.description, tool.url, tool.logo, tool.isFeatured, tool.isNew]);
+  }, [form, tool.name, tool.description, tool.url, tool.logo, tool.isFeatured, tool.isNew, tool.categoryId]);
 
   // 保存编辑
   const handleSave = async () => {
     try {
       const values = await form.validateFields();
+      const categoryChanged = values.categoryId !== tool.categoryId;
+
       await updateTool(tool.id, values);
       message.success('更新成功');
       setEditModalVisible(false);
+
+      // 如果分类改变了，刷新页面以显示工具在新分类中
+      if (categoryChanged) {
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
+      }
     } catch (error) {
       console.error('更新失败:', error);
       message.error('更新失败');
@@ -250,6 +260,25 @@ const ToolCard = memo(({ tool }) => {
             rules={[{ required: true, message: '请输入工具名称' }]}
           >
             <Input placeholder="请输入工具名称" />
+          </Form.Item>
+
+          <Form.Item
+            label="工具分类"
+            name="categoryId"
+            rules={[{ required: true, message: '请选择工具分类' }]}
+          >
+            <Select
+              placeholder="请选择工具分类"
+              showSearch
+              optionFilterProp="children"
+              filterOption={(input, option) =>
+                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+              }
+              options={categories?.map(cat => ({
+                value: cat.id,
+                label: cat.name
+              })) || []}
+            />
           </Form.Item>
 
           <Form.Item
