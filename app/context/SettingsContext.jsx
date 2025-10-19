@@ -4,7 +4,7 @@ import { useSettings } from '../hooks/useSettings';
 const SettingsContext = createContext(null);
 
 export const SettingsProvider = ({ children }) => {
-  const { settings, loading, error, incrementViewCount, updateTool, deleteTool, updateToolTags, addTool } = useSettings();
+  const { settings, loading, error, incrementViewCount, updateTool, deleteTool, updateToolTags, addTool, updateCategoryOrder } = useSettings();
 
   // 数据加载中，不显示任何内容（依赖 layout.tsx 的全局加载动画）
   if (loading) {
@@ -27,7 +27,7 @@ export const SettingsProvider = ({ children }) => {
   }
 
   return (
-    <SettingsContext.Provider value={{ ...settings, incrementViewCount, updateTool, deleteTool, updateToolTags, addTool }}>
+    <SettingsContext.Provider value={{ ...settings, incrementViewCount, updateTool, deleteTool, updateToolTags, addTool, updateCategoryOrder }}>
       {children}
     </SettingsContext.Provider>
   );

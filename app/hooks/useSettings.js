@@ -192,5 +192,47 @@ export const useSettings = () => {
     settingsCache = null;
   };
 
-  return { settings, loading, error, incrementViewCount, updateTool, deleteTool, updateToolTags, addTool };
+  // 更新分类顺序
+  const updateCategoryOrder = async (categories) => {
+    try {
+      console.log('🔄 更新分类顺序:', categories);
+
+      const response = await fetch('/api/categories/order', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ categories }),
+      });
+
+      console.log('📡 API 响应状态:', response.status);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('❌ API 错误:', errorData);
+        throw new Error(errorData.error || '更新分类顺序失败');
+      }
+
+      const result = await response.json();
+      console.log('✅ 更新成功:', result);
+
+      // 先清除服务器端缓存
+      try {
+        await fetch('/api/settings', { method: 'POST' });
+      } catch (e) {
+        console.warn('清除服务器缓存失败:', e);
+      }
+
+      // 清除客户端缓存并重新加载数据
+      settingsCache = null;
+      await loadSettings(true);
+
+      return result;
+    } catch (err) {
+      console.error('❌ 更新分类顺序失败:', err);
+      throw err;
+    }
+  };
+
+  return { settings, loading, error, incrementViewCount, updateTool, deleteTool, updateToolTags, addTool, updateCategoryOrder };
 };

@@ -1,9 +1,17 @@
-import { Menu } from 'antd';
+'use client'
+
+import { useState } from 'react';
+import { App } from 'antd';
 import * as Icons from '@ant-design/icons';
 import { useSettingsContext } from '../../context/SettingsContext';
+import './CategoryMenu.css';
 
 const CategoryMenu = ({ onMenuClick, collapsed, currentCategory }) => {
   const settings = useSettingsContext();
+  const { updateCategoryOrder } = useSettingsContext();
+  const { message } = App.useApp();
+  const [draggedIndex, setDraggedIndex] = useState(null);
+  const [dragOverIndex, setDragOverIndex] = useState(null);
 
   const scrollToSection = (categoryId) => {
     const element = document.getElementById(`category-${categoryId}`);
@@ -16,36 +24,96 @@ const CategoryMenu = ({ onMenuClick, collapsed, currentCategory }) => {
     }
   };
 
-  const menuItems = settings.categories.map(category => {
-    // 统一使用header_icon，保持与顶部菜单栏一致的图标风格
-    const iconKey = category.headerIcon || category.icon; // 优先使用header_icon，回退到icon
-    const IconComponent = Icons[iconKey] || Icons.AppstoreOutlined;
+  // 拖拽开始
+  const handleDragStart = (e, index) => {
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', e.currentTarget);
+  };
 
-    return {
-      key: category.id,
-      icon: <IconComponent />,
-      label: category.name,
-      onClick: () => scrollToSection(category.id),
-    };
-  });
+  // 拖拽结束
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
 
-  // 根据当前分类名称找到对应的分类ID
-  const selectedKey = currentCategory
-    ? settings.categories.find(cat => cat.name === currentCategory)?.id
-    : null;
+  // 拖拽经过
+  const handleDragOver = (e, index) => {
+    e.preventDefault();
+    if (draggedIndex === index) return;
+    setDragOverIndex(index);
+  };
+
+  // 放置
+  const handleDrop = async (e, dropIndex) => {
+    e.preventDefault();
+
+    if (draggedIndex === null || draggedIndex === dropIndex) {
+      setDragOverIndex(null);
+      return;
+    }
+
+    try {
+      // 创建新的分类数组
+      const newCategories = [...settings.categories];
+      const draggedCategory = newCategories[draggedIndex];
+
+      console.log('🎯 拖拽前顺序:', newCategories.map((c, i) => `${i + 1}. ${c.name}`));
+      console.log(`📌 从位置 ${draggedIndex + 1} 拖到位置 ${dropIndex + 1}`);
+
+      // 移除拖拽的项
+      newCategories.splice(draggedIndex, 1);
+      // 插入到新位置
+      newCategories.splice(dropIndex, 0, draggedCategory);
+
+      console.log('🎯 拖拽后顺序:', newCategories.map((c, i) => `${i + 1}. ${c.name}`));
+
+      // 更新 display_order
+      const updatedCategories = newCategories.map((cat, idx) => ({
+        id: cat.id,
+        displayOrder: idx + 1
+      }));
+
+      console.log('📡 将发送给API的数据:', updatedCategories);
+
+      // 调用 API 更新顺序
+      await updateCategoryOrder(updatedCategories);
+      message.success('分类顺序已更新');
+    } catch (error) {
+      console.error('更新分类顺序失败:', error);
+      message.error('更新分类顺序失败');
+    }
+
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
 
   return (
-    <Menu
-      mode="inline"
-      theme="light"
-      items={menuItems}
-      inlineCollapsed={collapsed}
-      selectedKeys={selectedKey ? [selectedKey] : []}
-      style={{
-        borderRight: 0,
-        background: 'transparent',
-      }}
-    />
+    <div className="category-menu">
+      {settings.categories.map((category, index) => {
+        const iconKey = category.headerIcon || category.icon;
+        const IconComponent = Icons[iconKey] || Icons.AppstoreOutlined;
+        const isActive = currentCategory === category.name;
+        const isDragging = draggedIndex === index;
+        const isDragOver = dragOverIndex === index && draggedIndex !== index;
+
+        return (
+          <div
+            key={category.id}
+            draggable
+            onDragStart={(e) => handleDragStart(e, index)}
+            onDragEnd={handleDragEnd}
+            onDragOver={(e) => handleDragOver(e, index)}
+            onDrop={(e) => handleDrop(e, index)}
+            onClick={() => scrollToSection(category.id)}
+            className={`category-menu-item ${isActive ? 'active' : ''} ${isDragging ? 'dragging' : ''} ${isDragOver ? 'drag-over' : ''} ${collapsed ? 'collapsed' : ''}`}
+          >
+            <IconComponent className="category-icon" />
+            {!collapsed && <span className="category-name">{category.name}</span>}
+          </div>
+        );
+      })}
+    </div>
   );
 };
 
