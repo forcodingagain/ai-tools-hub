@@ -1,12 +1,12 @@
 'use client'
 
-import { useState } from 'react';
+import { useState, useCallback, memo } from 'react';
 import { Modal, Form, Input, Switch, App, Tag, Space } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { useSettingsContext } from '../../context/SettingsContext';
 import './AddToolCard.css';
 
-const AddToolCard = ({ categoryId }) => {
+const AddToolCard = memo(({ categoryId }) => {
   const { addTool } = useSettingsContext();
   const { message } = App.useApp();
   const [modalVisible, setModalVisible] = useState(false);
@@ -15,12 +15,12 @@ const AddToolCard = ({ categoryId }) => {
   const [newTagInput, setNewTagInput] = useState('');
   const [tagInputVisible, setTagInputVisible] = useState(false);
 
-  // 打开添加工具模态框
-  const handleClick = () => {
+  // 打开添加工具模态框（使用 useCallback）
+  const handleClick = useCallback(() => {
     setModalVisible(true);
     setTags([]);
     form.resetFields();
-  };
+  }, [form]);
 
   // 保存新工具
   const handleSave = async () => {
@@ -218,6 +218,9 @@ const AddToolCard = ({ categoryId }) => {
       </Modal>
     </>
   );
-};
+});
+
+// 添加 displayName 便于调试
+AddToolCard.displayName = 'AddToolCard';
 
 export default AddToolCard;

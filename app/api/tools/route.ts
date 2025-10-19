@@ -35,7 +35,7 @@ export async function POST(request: Request) {
     });
 
     // 获取创建的工具详情
-    const newTool = dbHelpers.getToolById(result.id);
+    const newTool = dbHelpers.getToolById(result.id) as any;
 
     if (!newTool) {
       return NextResponse.json(

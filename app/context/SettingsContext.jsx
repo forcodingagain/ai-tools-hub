@@ -1,23 +1,14 @@
 import { createContext, useContext } from 'react';
 import { useSettings } from '../hooks/useSettings';
-import { Spin } from 'antd';
 
 const SettingsContext = createContext(null);
 
 export const SettingsProvider = ({ children }) => {
   const { settings, loading, error, incrementViewCount, updateTool, deleteTool, updateToolTags, addTool } = useSettings();
 
+  // 数据加载中，不显示任何内容（依赖 layout.tsx 的全局加载动画）
   if (loading) {
-    return (
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh'
-      }}>
-        <Spin size="large" />
-      </div>
-    );
+    return null;
   }
 
   if (error) {

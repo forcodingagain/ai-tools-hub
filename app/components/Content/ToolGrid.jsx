@@ -5,10 +5,12 @@ import './ToolGrid.css';
 const ToolGrid = ({ tools, categoryId }) => {
   return (
     <div className="tool-grid">
-      {/* 添加工具卡片 */}
-      <div className="tool-grid-item">
-        <AddToolCard categoryId={categoryId} />
-      </div>
+      {/* 添加工具卡片 - 只在有 categoryId 时显示 */}
+      {categoryId && (
+        <div className="tool-grid-item">
+          <AddToolCard categoryId={categoryId} />
+        </div>
+      )}
 
       {/* 工具列表 */}
       {tools && tools.length > 0 ? (

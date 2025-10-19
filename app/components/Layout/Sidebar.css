@@ -69,6 +69,15 @@
 /* 侧边栏菜单样式优化 */
 .ant-layout-sider {
   box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+  /* 隐藏滚动条但保留滚动功能 */
+  overflow-y: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+/* 隐藏滚动条 - Webkit浏览器 (Chrome, Safari) */
+.ant-layout-sider::-webkit-scrollbar {
+  display: none;
 }
 
 .ant-menu-inline .ant-menu-item {

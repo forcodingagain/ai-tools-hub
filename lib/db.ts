@@ -61,12 +61,53 @@ export function closeDatabase(): void {
  */
 export const dbHelpers = {
   /**
-   * 获取所有活跃工具（未删除，使用优化视图）
+   * 获取所有活跃工具（优化版：避免使用视图的 GROUP_CONCAT）
    */
   getActiveTools: () => {
     const db = getDatabase();
-    const stmt = db.prepare('SELECT * FROM v_active_tools ORDER BY view_count DESC');
-    return stmt.all();
+
+    // 1. 查询所有工具及其分类名称（不包含标签）
+    const toolsStmt = db.prepare(`
+      SELECT
+        t.id,
+        t.legacy_id,
+        t.name,
+        t.description,
+        t.logo,
+        t.url,
+        t.category_id,
+        c.name as category_name,
+        t.is_featured,
+        t.is_new,
+        t.view_count,
+        t.added_date,
+        t.created_at
+      FROM tools t
+      LEFT JOIN categories c ON t.category_id = c.id
+      WHERE t.is_deleted = 0 AND c.is_deleted = 0
+      ORDER BY t.view_count DESC
+    `);
+    const tools = toolsStmt.all() as any[];
+
+    // 2. 批量查询所有工具的标签（一次查询）
+    const tagsStmt = db.prepare(`
+      SELECT tt.tool_id, GROUP_CONCAT(tg.name, ',') as tags
+      FROM tool_tags tt
+      JOIN tags tg ON tt.tag_id = tg.id
+      WHERE tt.tool_id IN (SELECT id FROM tools WHERE is_deleted = 0)
+      GROUP BY tt.tool_id
+    `);
+    const tagsMap = new Map<number, string>();
+    const tagsResult = tagsStmt.all() as Array<{ tool_id: number; tags: string }>;
+    tagsResult.forEach(row => {
+      tagsMap.set(row.tool_id, row.tags);
+    });
+
+    // 3. 在内存中合并数据
+    return tools.map(tool => ({
+      ...tool,
+      tags: tagsMap.get(tool.id) || null
+    }));
   },
 
   /**

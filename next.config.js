@@ -33,6 +33,9 @@ const nextConfig = {
 
     // CSS 代码分割策略
     cssChunking: 'strict',
+
+    // Webpack 内存优化（减少构建内存使用）
+    webpackMemoryOptimizations: true,
   },
 
   // ============================================
@@ -45,9 +48,13 @@ const nextConfig = {
   // 图片优化
   // ============================================
   images: {
-    formats: ['image/webp'],
+    formats: ['image/avif', 'image/webp'],
     deviceSizes: [640, 828, 1200, 1920],
     imageSizes: [32, 64, 96, 128],
+    minimumCacheTTL: 60,
+    dangerouslyAllowSVG: true,
+    contentDispositionType: 'attachment',
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
 
   // ============================================
@@ -56,6 +63,57 @@ const nextConfig = {
   productionBrowserSourceMaps: false,
   poweredByHeader: false,
   generateEtags: false,
+
+  // ============================================
+  // HTTP Headers 优化
+  // ============================================
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'X-DNS-Prefetch-Control',
+            value: 'on'
+          },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=63072000; includeSubDomains; preload'
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff'
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY'
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'origin-when-cross-origin'
+          },
+        ],
+      },
+      {
+        source: '/api/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, s-maxage=60, stale-while-revalidate=300'
+          },
+        ],
+      },
+      {
+        source: '/_next/static/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable'
+          },
+        ],
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;

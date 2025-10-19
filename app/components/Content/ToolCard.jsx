@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react';
+import { useState, useMemo, useCallback, memo } from 'react';
 import { Badge, Dropdown, Modal, Form, Input, Switch, App, Tag, Space, Tooltip } from 'antd';
-import { PlusOutlined, CloseOutlined } from '@ant-design/icons';
+import { PlusOutlined } from '@ant-design/icons';
 import { useSettingsContext } from '../../context/SettingsContext';
 import './ToolCard.css';
 
-const ToolCard = ({ tool }) => {
+const ToolCard = memo(({ tool }) => {
   const { incrementViewCount, updateTool, deleteTool, updateToolTags } = useSettingsContext();
   const { modal, message } = App.useApp();
   const [editModalVisible, setEditModalVisible] = useState(false);
@@ -16,13 +16,16 @@ const ToolCard = ({ tool }) => {
   const [newTagInput, setNewTagInput] = useState('');
   const [tagInputVisible, setTagInputVisible] = useState(false);
 
-  const showBadge = tool.isNew || tool.isFeatured;
+  // 使用 useMemo 缓存计算结果，避免每次渲染都重新计算
+  const showBadge = useMemo(() => tool.isNew || tool.isFeatured, [tool.isNew, tool.isFeatured]);
 
   // 显示用的标签（从 tool.tags 直接获取，无需请求）
-  const displayTags = (tool.tags || []).map((tagName, index) => ({
-    id: `display-${index}`, // 临时 id，仅用于 React key
-    name: tagName
-  }));
+  const displayTags = useMemo(() =>
+    (tool.tags || []).map((tagName, index) => ({
+      id: `display-${index}`, // 临时 id，仅用于 React key
+      name: tagName
+    }))
+  , [tool.tags]);
 
   // 加载完整标签对象（包含真实 id，用于编辑/删除）
   const loadEditTags = async () => {
@@ -37,17 +40,17 @@ const ToolCard = ({ tool }) => {
     }
   };
 
-  // 左键点击 - 打开链接并增加浏览量
-  const handleClick = (e) => {
+  // 左键点击 - 打开链接并增加浏览量（使用 useCallback 避免重复创建）
+  const handleClick = useCallback((e) => {
     e.stopPropagation();
     if (incrementViewCount) {
       incrementViewCount(tool.id);
     }
     window.open(tool.url, '_blank');
-  };
+  }, [incrementViewCount, tool.id, tool.url]);
 
-  // 编辑工具
-  const handleEdit = async () => {
+  // 编辑工具（使用 useCallback）
+  const handleEdit = useCallback(async () => {
     form.setFieldsValue({
       name: tool.name,
       description: tool.description,
@@ -58,7 +61,7 @@ const ToolCard = ({ tool }) => {
     });
     await loadEditTags(); // 只在编辑时加载完整标签对象
     setEditModalVisible(true);
-  };
+  }, [form, tool.name, tool.description, tool.url, tool.logo, tool.isFeatured, tool.isNew]);
 
   // 保存编辑
   const handleSave = async () => {
@@ -174,7 +177,14 @@ const ToolCard = ({ tool }) => {
     <Tooltip title={tool.description} placement="top" mouseEnterDelay={0.3}>
       <div className="tool-card" onClick={handleClick}>
         <div className="tool-logo">
-          {tool.logo && <img src={tool.logo} alt={tool.name} />}
+          {tool.logo && (
+            <img
+              src={tool.logo}
+              alt={tool.name}
+              loading="lazy"
+              decoding="async"
+            />
+          )}
         </div>
         <div className="tool-info">
           <div className="tool-header">
@@ -340,6 +350,9 @@ const ToolCard = ({ tool }) => {
       </Modal>
     </>
   );
-};
+});
+
+// 添加 displayName 便于调试
+ToolCard.displayName = 'ToolCard';
 
 export default ToolCard;

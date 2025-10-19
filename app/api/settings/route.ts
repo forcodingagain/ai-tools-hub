@@ -50,7 +50,7 @@ export async function GET() {
     }
 
     console.log('🔄 从数据库获取数据');
-    const startTime = performance.now();
+    const dbStartTime = performance.now();
 
     // 并行获取所有数据
     const [siteConfig, categories, tools] = await Promise.all([
@@ -59,8 +59,10 @@ export async function GET() {
       Promise.resolve(dbHelpers.getActiveTools())
     ]);
 
-    const endTime = performance.now();
-    console.log(`📊 数据库查询耗时: ${(endTime - startTime).toFixed(2)}ms`);
+    const dbEndTime = performance.now();
+    console.log(`📊 数据库查询耗时: ${(dbEndTime - dbStartTime).toFixed(2)}ms`);
+
+    const transformStartTime = performance.now();
 
     // 建立 category id -> legacy_id 的映射
     const categoryIdMap = new Map<number, number>();
@@ -74,6 +76,10 @@ export async function GET() {
       categories: categories.map(transformCategory),
       tools: tools.map((tool: any) => transformTool(tool, categoryIdMap)),
     };
+
+    const transformEndTime = performance.now();
+    console.log(`🔄 数据转换耗时: ${(transformEndTime - transformStartTime).toFixed(2)}ms`);
+    console.log(`⏱️  API总耗时: ${(transformEndTime - dbStartTime).toFixed(2)}ms`);
 
     // 更新缓存
     cache = result;
