@@ -1,7 +1,7 @@
 import { useMemo, memo } from 'react';
 import { useSettingsContext } from '../../context/SettingsContext';
 import VirtualGrid from './VirtualGrid';
-import { getIcon } from '../../utils/iconMap';
+import * as Icons from '@ant-design/icons';
 import './CategorySection.css';
 
 /**
@@ -31,16 +31,21 @@ const CategorySection = memo(({ category }) => {
     [settings.tools, category.id]
   );
 
-  // 使用 useMemo 缓存图标组件（只导入需要的图标）
+  // 使用 useMemo 缓存图标组件（与侧边栏保持一致）
   const IconComponent = useMemo(
-    () => getIcon(category.icon),
-    [category.icon]
+    () => {
+      const iconKey = category.headerIcon || category.icon;
+      return Icons[iconKey] || Icons.FolderOutlined;
+    },
+    [category.headerIcon, category.icon]
   );
 
   return (
     <section id={`category-${category.id}`} className="category-section">
       <div className="category-header">
-        <IconComponent className="category-icon" />
+        <div className="category-icon">
+          <IconComponent style={{ fontSize: '28px' }} />
+        </div>
         <h2 className="category-title">{category.name}</h2>
         <span className="category-count">({categoryTools.length})</span>
       </div>

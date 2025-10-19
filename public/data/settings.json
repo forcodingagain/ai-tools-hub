@@ -12,82 +12,82 @@
     {
       "id": "category-6",
       "name": "AI聊天助手",
-      "icon": "FolderOutlined"
+      "icon": "MessageOutlined"
     },
     {
       "id": "category-1",
       "name": "AI写作工具",
-      "icon": "FolderOutlined"
+      "icon": "EditOutlined"
     },
     {
       "id": "category-3",
       "name": "AI视频工具",
-      "icon": "FolderOutlined"
+      "icon": "VideoCameraOutlined"
     },
     {
       "id": "category-5",
       "name": "AI智能体",
-      "icon": "FolderOutlined"
+      "icon": "RobotOutlined"
     },
     {
       "id": "category-7",
       "name": "AI编程工具",
-      "icon": "FolderOutlined"
+      "icon": "CodeOutlined"
     },
     {
       "id": "category-8",
       "name": "AI设计工具",
-      "icon": "FolderOutlined"
+      "icon": "BgColorsOutlined"
     },
     {
       "id": "category-9",
       "name": "AI音频工具",
-      "icon": "FolderOutlined"
+      "icon": "AudioOutlined"
     },
     {
       "id": "category-10",
       "name": "AI搜索引擎",
-      "icon": "FolderOutlined"
+      "icon": "SearchOutlined"
     },
     {
       "id": "category-11",
       "name": "AI开发平台",
-      "icon": "FolderOutlined"
+      "icon": "DeploymentUnitOutlined"
     },
     {
       "id": "category-12",
       "name": "AI学习网站",
-      "icon": "FolderOutlined"
+      "icon": "ReadOutlined"
     },
     {
       "id": "category-13",
       "name": "AI训练模型",
-      "icon": "FolderOutlined"
+      "icon": "CloudServerOutlined"
     },
     {
       "id": "category-14",
       "name": "AI模型评测",
-      "icon": "FolderOutlined"
+      "icon": "BarChartOutlined"
     },
     {
       "id": "category-15",
       "name": "AI内容检测",
-      "icon": "FolderOutlined"
+      "icon": "SafetyCertificateOutlined"
     },
     {
       "id": "category-16",
       "name": "AI提示指令",
-      "icon": "FolderOutlined"
+      "icon": "BulbOutlined"
     },
     {
       "id": "category-19",
       "name": "AI图像工具",
-      "icon": "FolderOutlined"
+      "icon": "PictureOutlined"
     },
     {
       "id": "category-21",
       "name": "AI办公工具",
-      "icon": "FolderOutlined"
+      "icon": "FileTextOutlined"
     }
   ],
   "tools": [
