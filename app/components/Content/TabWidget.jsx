@@ -1,6 +1,6 @@
 import { Card } from 'antd';
-import { FireOutlined } from '@ant-design/icons';
 import { useSettingsContext } from '../../context/SettingsContext';
+import { HotToolsIcon } from '../Common/BrandIcons';
 import ToolCard from './ToolCard';
 import './TabWidget.css';
 
@@ -15,7 +15,9 @@ const TabWidget = () => {
   return (
     <Card className="tab-widget-card">
       <div className="tab-widget-header">
-        <FireOutlined style={{ marginRight: '8px', color: '#ff4d4f' }} />
+        <div className="tab-widget-icon">
+          <HotToolsIcon size={20} />
+        </div>
         <span className="tab-widget-title">常用工具</span>
       </div>
       <div className="tab-tools-grid">

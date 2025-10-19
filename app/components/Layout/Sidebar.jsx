@@ -1,5 +1,6 @@
 import { Layout, Drawer } from "antd";
 import { useState, useEffect } from "react";
+import { BrandLogo } from "../Common/BrandIcons";
 import CategoryMenu from "./CategoryMenu";
 import "./Sidebar.css";
 
@@ -29,7 +30,9 @@ const Sidebar = ({
         <>
             <div className={`sidebar-header ${collapsed ? 'collapsed' : ''}`}>
                 <h2 className={`logo ${collapsed ? 'collapsed' : ''}`}>
-                    <div className="logo-icon">AI</div>
+                    <div className="logo-icon">
+                        <BrandLogo size={24} />
+                    </div>
                     {!collapsed && <span>AI集盒</span>}
                 </h2>
             </div>

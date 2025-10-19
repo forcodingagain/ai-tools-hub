@@ -7,15 +7,49 @@
 .tab-widget-header {
   display: flex;
   align-items: center;
+  gap: 12px;
   margin-bottom: 16px;
   padding-bottom: 12px;
   border-bottom: 2px solid #f0f0f0;
+}
+
+.tab-widget-icon {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #ff7875 0%, #ff4d4f 50%, #cf1322 100%);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(255, 77, 79, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.tab-widget-icon svg {
+  width: 20px;
+  height: 20px;
+  transition: all 0.3s ease;
+}
+
+.tab-widget-icon:hover {
+  transform: scale(1.05) rotate(-5deg);
+  box-shadow: 0 6px 16px rgba(255, 77, 79, 0.4);
+}
+
+.tab-widget-icon:hover svg {
+  transform: scale(1.1);
 }
 
 .tab-widget-title {
   font-size: 18px;
   font-weight: 600;
   color: var(--text-primary);
+  background: linear-gradient(135deg, #ff4d4f 0%, #cf1322 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .tab-tools-grid {
