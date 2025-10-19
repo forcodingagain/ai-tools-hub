@@ -1,6 +1,6 @@
 import { Card } from 'antd';
+import { StarOutlined } from '@ant-design/icons';
 import { useSettingsContext } from '../../context/SettingsContext';
-import { HotToolsIcon } from '../Common/BrandIcons';
 import ToolCard from './ToolCard';
 import './TabWidget.css';
 
@@ -15,9 +15,7 @@ const TabWidget = () => {
   return (
     <Card className="tab-widget-card">
       <div className="tab-widget-header">
-        <div className="tab-widget-icon">
-          <HotToolsIcon size={20} />
-        </div>
+        <StarOutlined className="tab-widget-icon" />
         <span className="tab-widget-title">常用工具</span>
       </div>
       <div className="tab-tools-grid">

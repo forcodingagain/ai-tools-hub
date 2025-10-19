@@ -9,39 +9,42 @@
 .tab-widget-header {
   display: flex;
   align-items: center;
-  gap: 12px;
   margin-bottom: 16px;
   padding-bottom: 12px;
   border-bottom: 2px solid #f0f0f0;
 }
 
 .tab-widget-icon {
-  width: 36px;
-  height: 36px;
-  background: linear-gradient(135deg, var(--primary-color-light, #40a9ff) 0%, var(--primary-color, #1890ff) 50%, var(--primary-color-dark, #096dd9) 100%);
-  border-radius: 10px;
+  margin-right: var(--spacing-md, 16px);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(24, 144, 255, 0.3);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
-}
-
-.tab-widget-icon svg {
-  width: 20px;
-  height: 20px;
-  transition: all 0.3s ease;
+  color: var(--primary-color, #1890ff);
+  font-size: 20px;
 }
 
 .tab-widget-icon:hover {
-  transform: scale(1.05) rotate(-5deg);
-  box-shadow: 0 6px 16px rgba(24, 144, 255, 0.4);
+  transform: scale(1.05);
+  color: var(--primary-color-dark, #096dd9);
 }
 
-.tab-widget-icon:hover svg {
-  transform: scale(1.1);
+.tab-widget-icon .anticon {
+  filter: drop-shadow(0 2px 8px rgba(24, 144, 255, 0.3));
+  transition: all 0.3s ease;
+}
+
+.tab-widget-icon:hover .anticon {
+  filter: drop-shadow(0 4px 12px rgba(24, 144, 255, 0.4));
+}
+
+/* 确保星星图标颜色正确 */
+.tab-widget-header .anticon {
+  color: var(--primary-color, #1890ff) !important;
+}
+
+.tab-widget-header .anticon:hover {
+  color: var(--primary-color-dark, #096dd9) !important;
 }
 
 .tab-widget-title {
