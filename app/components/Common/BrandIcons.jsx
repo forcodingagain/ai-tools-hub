@@ -31,13 +31,17 @@ export const HotToolsIcon = ({ size = 20, className = "" }) => (
   >
     <defs>
       <linearGradient id="hotToolsGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#ff7875"/>
-        <stop offset="50%" stopColor="#ff4d4f"/>
-        <stop offset="100%" stopColor="#cf1322"/>
+        <stop offset="0%" stopColor="#40a9ff"/>
+        <stop offset="50%" stopColor="#1890ff"/>
+        <stop offset="100%" stopColor="#096dd9"/>
       </linearGradient>
     </defs>
-    <path d="M8 2v4H4v6h4v4h4v-4h4v4h4v-4h4V6h-4V2h-4v4h-4V2H8z" fill="url(#hotToolsGradient)" opacity="0.9"/>
-    <circle cx="12" cy="12" r="2" fill="white" opacity="0.8"/>
+    {/* 星星主体 - 代表常用/收藏 */}
+    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="url(#hotToolsGradient)" opacity="0.9"/>
+    {/* 中心圆形 - 代表工具集合 */}
+    <circle cx="12" cy="12" r="3" fill="white" opacity="0.9"/>
+    {/* 时钟刻度 - 代表频繁使用 */}
+    <path d="M12 8v4l2 2" stroke="#1890ff" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
   </svg>
 );
 
