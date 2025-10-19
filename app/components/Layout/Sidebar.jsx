@@ -30,7 +30,7 @@ const Sidebar = ({
             <div className={`sidebar-header ${collapsed ? 'collapsed' : ''}`}>
                 <h2 className={`logo ${collapsed ? 'collapsed' : ''}`}>
                     <div className="logo-icon">AI</div>
-                    {!collapsed && <span>AI站点</span>}
+                    {!collapsed && <span>AI集盒</span>}
                 </h2>
             </div>
             <CategoryMenu

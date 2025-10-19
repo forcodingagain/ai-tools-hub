@@ -1,24 +1,100 @@
 /* 卡片容器 */
 .tool-card {
-  background: var(--bg-primary, #fff);
+  background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%); /* 微妙的渐变背景 */
   border: 1px solid var(--border-color, #f0f0f0);
-  border-radius: 8px;
-  padding: 16px;
+  border-radius: var(--border-radius-lg, 12px); /* 增加圆角，更现代 */
+  padding: 18px; /* 增加内边距，提升呼吸感 */
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* 更流畅的缓动函数 */
   display: flex;
   align-items: center;
-  gap: 12px;
-  height: 90px !important; /* 强制设置固定高度，与AddToolCard保持一致 */
+  gap: var(--spacing-md, 14px); /* 增加间距 */
+  height: 94px !important; /* 配合hover的transform效果 */
   width: 100%;
   overflow: hidden;
   box-sizing: border-box;
+  position: relative; /* 为伪元素做准备 */
+}
+
+/* 响应式卡片样式 */
+@media (max-width: 1200px) {
+  .tool-card {
+    padding: 16px;
+    gap: var(--spacing-sm, 12px);
+    height: 90px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .tool-card {
+    padding: var(--spacing-md, 16px);
+    gap: var(--spacing-sm, 12px);
+    height: 100px !important; /* 移动端略高，方便触摸 */
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .tool-logo {
+    width: 40px;
+    height: 40px;
+    position: absolute;
+    top: var(--spacing-md, 16px);
+    right: var(--spacing-md, 16px);
+  }
+
+  .tool-info {
+    width: 100%;
+    padding-right: 52px; /* 为logo留空间 */
+  }
+
+  .tool-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-xs, 4px);
+  }
+
+  .tool-name {
+    font-size: 15px;
+    margin-right: var(--spacing-md, 16px);
+  }
+
+  .tool-viewcount {
+    font-size: 11px;
+  }
 }
 
 .tool-card:hover {
-  /* 移除translateY避免顶部边框被裁剪 */
   border-color: var(--primary-color, #1890ff);
-  box-shadow: 0 2px 8px rgba(24, 144, 255, 0.2); /* 添加蓝色阴影增强高亮效果 */
+  border-width: 2px; /* 加粗边框让高亮更明显 */
+  box-shadow:
+    0 8px 24px rgba(24, 144, 255, 0.15), /* 主阴影 */
+    0 0 0 1px rgba(24, 144, 255, 0.1), /* 内发光边框效果 */
+    0 -2px 0 rgba(24, 144, 255, 0.1), /* 顶部发光 */
+    -2px 0 0 rgba(24, 144, 255, 0.1), /* 左侧发光 */
+    2px 0 0 rgba(24, 144, 255, 0.1); /* 右侧发光 */
+  transform: scale(1.02);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* 更流畅的过渡 */
+  position: relative; /* 为伪元素做准备 */
+  z-index: 10; /* 确保hover效果在其他元素之上 */
+}
+
+/* 添加外发光边框效果 */
+.tool-card:hover::before {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  border-radius: var(--border-radius-lg, 12px);
+  border: 2px solid rgba(24, 144, 255, 0.3);
+  pointer-events: none;
+  z-index: -1;
+  background: linear-gradient(
+    135deg,
+    rgba(24, 144, 255, 0.05) 0%,
+    rgba(64, 169, 255, 0.02) 100%
+  );
 }
 
 /* Logo容器 */
@@ -98,21 +174,33 @@
 
 /* 标签容器 */
 .tool-tags {
-  margin-top: 8px;
+  margin-top: var(--spacing-xs, 4px);
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: var(--spacing-xs, 4px);
 }
 
 .tool-tags .ant-tag {
   margin: 0;
+  font-size: 11px;
+  font-weight: 500;
+  border: none;
+  border-radius: var(--border-radius-lg, 12px);
+  padding: 2px 8px;
+  background: linear-gradient(135deg, var(--primary-color-light, #40a9ff) 0%, var(--primary-color, #1890ff) 100%);
+  color: white;
+  box-shadow: var(--shadow-sm, 0 2px 8px rgba(24, 144, 255, 0.15));
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 /* Badge Ribbon 样式调整 */
 .tool-card-wrapper {
   position: relative;
-  height: 100%; /* 填满父容器virtual-grid-item */
+  height: 96px; /* 与virtual-grid-item保持一致 */
   width: 100%;
+  display: flex;
+  align-items: center;
 }
 
 .tool-card-wrapper .ant-ribbon {

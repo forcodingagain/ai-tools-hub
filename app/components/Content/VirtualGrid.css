@@ -1,14 +1,16 @@
 .virtual-grid-container {
   width: 100%;
   max-width: 100%;
-  overflow: hidden;
+  overflow: visible; /* 确保阴影和边框完整显示 */
+  padding: 8px 6px; /* 增加上下左右padding，为hover边框预留空间 */
+  margin: -8px -6px; /* 用负margin抵消padding，避免影响整体布局 */
 }
 
 .virtual-grid-rows {
   width: 100%;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+  gap: var(--spacing-lg, 20px); /* 使用设计token */
   align-items: start;
 }
 
@@ -17,29 +19,34 @@
 }
 
 .virtual-grid-item {
-  height: 90px;
+  height: 96px; /* 增加2px为hover效果预留空间 */
   width: 100%;
   min-width: 0; /* 防止内容溢出 */
   box-sizing: border-box;
+  margin: 0 2px; /* 左右各留2px空间 */
+  overflow: visible; /* 确保hover效果不被裁剪 */
+  position: relative; /* 为hover效果定位 */
 }
 
 /* 响应式布局 - 与ToolGrid保持一致 */
 @media (max-width: 1400px) {
   .virtual-grid-rows {
     grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-md, 16px);
   }
 }
 
 @media (max-width: 1200px) {
   .virtual-grid-rows {
     grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-md, 16px);
   }
 }
 
 @media (max-width: 768px) {
   .virtual-grid-rows {
     grid-template-columns: 1fr;
-    gap: 16px;
+    gap: var(--spacing-md, 16px);
   }
 }
 

@@ -1,26 +1,81 @@
 /* 添加工具卡片 */
 .add-tool-card {
-  background: var(--bg-primary, #fff);
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); /* 更淡的渐变背景 */
   border: 2px dashed var(--border-color, #d9d9d9);
-  border-radius: 8px;
-  padding: 16px;
+  border-radius: var(--border-radius-lg, 12px); /* 与ToolCard保持一致 */
+  padding: 18px; /* 与ToolCard保持一致 */
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* 更流畅的缓动函数 */
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  height: 90px !important; /* 强制设置与virtual-grid-item相同的高度 */
+  gap: var(--spacing-sm, 10px); /* 略微增加间距 */
+  height: 94px !important; /* 与ToolCard保持一致 */
   width: 100%;
   overflow: hidden;
   box-sizing: border-box;
+  position: relative;
+}
+
+/* 响应式添加工具卡片 */
+@media (max-width: 1200px) {
+  .add-tool-card {
+    padding: 16px;
+    height: 90px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .add-tool-card {
+    padding: var(--spacing-md, 16px);
+    height: 100px !important; /* 与ToolCard保持一致 */
+    flex-direction: column;
+    gap: var(--spacing-xs, 4px);
+  }
+
+  .add-tool-icon {
+    font-size: 20px;
+  }
+
+  .add-tool-text {
+    font-size: 13px;
+  }
 }
 
 .add-tool-card:hover {
   border-color: var(--primary-color, #1890ff);
-  background: var(--bg-hover, #f5f5f5);
-  /* 移除transform避免顶部边框被裁剪，与ToolCard保持一致 */
-  box-shadow: 0 2px 8px rgba(24, 144, 255, 0.2); /* 添加蓝色阴影增强高亮效果 */
+  background: linear-gradient(135deg, #f0f8ff 0%, #ffffff 100%); /* 淡蓝色渐变 */
+  border-width: 2px; /* 加粗边框让高亮更明显 */
+  border-style: solid; /* hover时变成实线 */
+  box-shadow:
+    0 8px 24px rgba(24, 144, 255, 0.15), /* 主阴影 */
+    0 0 0 1px rgba(24, 144, 255, 0.1), /* 内发光边框效果 */
+    0 -2px 0 rgba(24, 144, 255, 0.1), /* 顶部发光 */
+    -2px 0 0 rgba(24, 144, 255, 0.1), /* 左侧发光 */
+    2px 0 0 rgba(24, 144, 255, 0.1); /* 右侧发光 */
+  transform: scale(1.02);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* 更流畅的过渡 */
+  position: relative; /* 为伪元素做准备 */
+  z-index: 10; /* 确保hover效果在其他元素之上 */
+}
+
+/* 添加外发光边框效果 */
+.add-tool-card:hover::before {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  border-radius: var(--border-radius-lg, 12px);
+  border: 2px solid rgba(24, 144, 255, 0.3);
+  pointer-events: none;
+  z-index: -1;
+  background: linear-gradient(
+    135deg,
+    rgba(24, 144, 255, 0.05) 0%,
+    rgba(64, 169, 255, 0.02) 100%
+  );
 }
 
 .add-tool-icon {

@@ -170,9 +170,12 @@ const MainLayout = () => {
                 }}
               />
             )}
-            <h1 style={{ textAlign: 'center', marginBottom: '32px' }}>
-              {settings.siteConfig.siteName}
-            </h1>
+            <div className="site-title-container">
+              <div className="brand-header">
+                <h1 className="brand-name">AI集盒</h1>
+                <p className="brand-subtitle">智启未来，工具致胜</p>
+              </div>
+            </div>
 
             <SearchBar onSearch={handleSearch} />
 

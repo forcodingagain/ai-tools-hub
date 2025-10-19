@@ -7,6 +7,127 @@
   width: 100%; /* 确保填满可用空间 */
 }
 
+/* 品牌标题样式 */
+.site-title-container {
+  text-align: center;
+  margin-bottom: var(--spacing-xl, 48px);
+  padding-top: var(--spacing-lg, 24px);
+}
+
+.brand-header {
+  text-align: center;
+}
+
+.brand-name {
+  margin: 0 0 var(--spacing-md, 16px) 0;
+  font-size: 52px;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--primary-color, #1890ff) 0%, var(--primary-color-dark, #096dd9) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  position: relative;
+  letter-spacing: -0.03em;
+  text-shadow: 0 4px 12px rgba(24, 144, 255, 0.15);
+}
+
+.brand-name::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary-color, #1890ff) 0%, var(--primary-color-light, #40a9ff) 100%);
+  border-radius: 2px;
+}
+
+.brand-subtitle {
+  margin: var(--spacing-lg, 24px) 0 0 0;
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--text-secondary, #666);
+  letter-spacing: 0.05em;
+}
+
+/* 保留原有的site-title样式以防万一 */
+.site-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm, 8px);
+  margin: 0 0 var(--spacing-sm, 8px) 0;
+  font-size: 42px;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--primary-color, #1890ff) 0%, var(--primary-color-dark, #096dd9) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  position: relative;
+}
+
+.site-title-text {
+  position: relative;
+  letter-spacing: -0.02em;
+}
+
+.site-title-badge {
+  font-size: 14px;
+  font-weight: 600;
+  background: linear-gradient(135deg, var(--primary-color-light, #40a9ff) 0%, var(--primary-color, #1890ff) 100%);
+  color: white;
+  padding: 6px 12px;
+  border-radius: var(--border-radius-lg, 12px);
+  box-shadow: var(--shadow-sm, 0 2px 8px rgba(0, 0, 0, 0.06));
+  transform: translateY(-8px);
+  margin-left: var(--spacing-sm, 8px);
+}
+
+.site-subtitle {
+  margin: 0;
+  color: var(--text-secondary, #666);
+  font-size: 16px;
+  font-weight: 400;
+  opacity: 0.8;
+  letter-spacing: 0.5px;
+}
+
+/* 响应式品牌标题 */
+@media (max-width: 768px) {
+  .site-title-container {
+    margin-bottom: var(--spacing-lg, 24px);
+    padding-top: var(--spacing-md, 16px);
+  }
+
+  .site-title {
+    font-size: 32px;
+    flex-direction: column;
+    gap: var(--spacing-xs, 4px);
+  }
+
+  .site-title-badge {
+    transform: none;
+    margin-left: 0;
+    font-size: 12px;
+  }
+
+  .site-subtitle {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .site-title {
+    font-size: 28px;
+  }
+
+  .site-title-badge {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+}
+
 /* 移动端菜单按钮 */
 .mobile-menu-button:hover {
   background: #1890ff !important;
