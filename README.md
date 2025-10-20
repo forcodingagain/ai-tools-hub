@@ -82,7 +82,7 @@ ai_tools_nextjs/
 ├── lib/                   # 工具库
 │   └── db.js             # 数据库连接
 ├── public/               # 静态资源
-│   └── data/            # 数据文件 (迁移中)
+│   └── placeholder.svg  # 图片占位符
 ├── scripts/             # 数据库迁移脚本
 ├── docs/               # 项目文档
 ├── ai_tools.db        # SQLite 数据库
@@ -96,6 +96,7 @@ ai_tools_nextjs/
 项目使用 SQLite 作为主要数据存储，采用高性能设计：
 
 **核心数据表（8个）：**
+
 - **`site_config`** - 站点配置（单例模式，id=1）
 - **`site_keywords`** - SEO 关键词管理
 - **`categories`** - 工具分类（支持软删除）
@@ -106,10 +107,12 @@ ai_tools_nextjs/
 - **`db_version`** - 数据库版本管理
 
 **优化视图（2个）：**
+
 - **`v_active_tools`** - 活跃工具视图（包含分类名称和标签聚合）
 - **`v_category_stats`** - 分类统计视图（工具数量和总浏览量）
 
 **性能索引（14个）：**
+
 - 分类显示排序索引（`idx_category_display_order`）
 - 工具分类+浏览量复合索引（`idx_tool_category_viewcount`）
 - 特色工具浏览量索引（`idx_tool_featured_viewcount`）
@@ -118,6 +121,7 @@ ai_tools_nextjs/
 - legacy_id 快速查找索引等
 
 **自动化触发器（5个）：**
+
 - 自动更新时间戳触发器
 - 软删除同步触发器
 
@@ -137,6 +141,7 @@ sqlite3 ai_tools.db ".schema"
 ```
 
 **建表脚本特性：**
+
 - ✅ 外键约束自动启用
 - ✅ WAL 模式提升并发性能
 - ✅ 14个性能优化索引
@@ -334,9 +339,3 @@ CMD ["npm", "start"]
 - [Ant Design](https://ant.design/) - UI 组件库
 - [better-sqlite3](https://github.com/JoshuaWise/better-sqlite3) - SQLite 库
 - [ahooks](https://ahooks.js.org/) - React Hooks 工具库
-
----
-
-<p align="center">
-  Made with ❤️ by AI集盒团队
-</p>
