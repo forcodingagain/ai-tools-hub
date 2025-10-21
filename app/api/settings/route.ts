@@ -10,7 +10,14 @@ const CACHE_DURATION = 300 * 1000; // ✅ 5分钟缓存（从10秒延长到5分�
 // 将数据库蛇形命名转换为前端驼峰命名
 function transformTool(tool: any, categoryIdMap: Map<number, number>) {
   // 将数据库的 category_id 转换为 legacy_id
-  const categoryLegacyId = categoryIdMap.get(tool.category_id) || tool.category_id;
+  // 添加防御性检查，确保 categoryId 不会是 undefined
+  let categoryLegacyId = categoryIdMap.get(tool.category_id) || tool.category_id;
+
+  // 如果映射结果仍然是 undefined，使用默认值 1（或者你希望的默认分类）
+  if (categoryLegacyId === undefined || categoryLegacyId === null) {
+    console.warn(`⚠️ 工具 "${tool.name}" (ID: ${tool.id}) 的分类ID无效，使用默认分类ID: 1`);
+    categoryLegacyId = 1; // 设置默认分类ID
+  }
 
   return {
     id: tool.legacy_id || tool.id,  // 前端使用 legacy_id

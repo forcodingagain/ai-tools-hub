@@ -24,10 +24,33 @@ const CategorySection = memo(({ category }) => {
 
   // 使用 useMemo 缓存过滤和排序结果，避免每次渲染都重新计算
   const categoryTools = useMemo(
-    () =>
-      settings.tools
-        .filter(tool => tool.categoryId === category.id)
-        .sort((a, b) => b.viewCount - a.viewCount),
+    () => {
+      if (!settings?.tools || !Array.isArray(settings.tools)) {
+        console.warn('⚠️ settings.tools 不存在或不是数组:', settings);
+        return [];
+      }
+
+      // 首先过滤掉所有的 undefined 和 null
+      const validTools = settings.tools.filter(tool => tool && typeof tool === 'object');
+
+      return validTools
+        .filter(tool => {
+          // 检查工具的基本属性
+          if (!tool.id || !tool.name) {
+            console.warn('⚠️ 发现缺少基本属性的工具:', tool);
+            return false;
+          }
+
+          // 检查 categoryId
+          if (tool.categoryId === undefined || tool.categoryId === null) {
+            console.warn('⚠️ 发现无效 categoryId 的工具:', tool);
+            return false;
+          }
+
+          return tool.categoryId === category.id;
+        })
+        .sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0));
+    },
     [settings.tools, category.id]
   );
 

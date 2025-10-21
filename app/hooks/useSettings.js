@@ -30,6 +30,29 @@ export const useSettings = () => {
 
       const data = await response.json();
 
+      // 防御性检查：确保 tools 数组存在且有效
+      if (data && data.tools && !Array.isArray(data.tools)) {
+        console.warn('⚠️ API 返回的 tools 不是数组，正在修复...');
+        data.tools = [];
+      } else if (data && data.tools) {
+        // 过滤掉无效的工具数据
+        data.tools = data.tools.filter(tool => {
+          if (!tool || typeof tool !== 'object') {
+            console.warn('⚠️ 过滤掉无效工具（非对象）:', tool);
+            return false;
+          }
+          if (!tool.id || !tool.name) {
+            console.warn('⚠️ 过滤掉缺少基本属性的工具:', tool);
+            return false;
+          }
+          if (tool.categoryId === undefined || tool.categoryId === null) {
+            console.warn('⚠️ 过滤掉无效 categoryId 的工具:', tool);
+            return false;
+          }
+          return true;
+        });
+      }
+
       setSettings(data);
       setError(null);
     } catch (err) {
@@ -58,19 +81,19 @@ export const useSettings = () => {
 
   // 增加工具浏览次数
   const incrementViewCount = useCallback(async (toolId) => {
-    if (!settings) return;
+    if (!settings || !settings.tools) return;
 
-    const currentTool = settings.tools.find(t => t.id === toolId);
+    const currentTool = settings.tools.find(t => t && t.id === toolId);
     const previousViewCount = currentTool?.viewCount || 0;
 
-    // 乐观更新
+    // 乐观更新 - 确保不会产生 undefined
     setSettings(prevSettings => ({
       ...prevSettings,
-      tools: prevSettings.tools.map(tool =>
-        tool.id === toolId
+      tools: (prevSettings.tools || []).map(tool =>
+        (tool && tool.id === toolId)
           ? { ...tool, viewCount: (tool.viewCount || 0) + 1 }
           : tool
-      )
+      ).filter(Boolean) // 过滤掉可能的 undefined
     }));
 
     try {
@@ -87,11 +110,11 @@ export const useSettings = () => {
       // 用服务器返回的真实值更新
       setSettings(prevSettings => ({
         ...prevSettings,
-        tools: prevSettings.tools.map(tool =>
-          tool.id === toolId
+        tools: (prevSettings.tools || []).map(tool =>
+          (tool && tool.id === toolId)
             ? { ...tool, viewCount: result.viewCount }
             : tool
-        )
+        ).filter(Boolean)
       }));
     } catch (err) {
       console.error('❌ 更新浏览次数失败:', err);
@@ -99,11 +122,11 @@ export const useSettings = () => {
       // 回滚到之前的值
       setSettings(prevSettings => ({
         ...prevSettings,
-        tools: prevSettings.tools.map(tool =>
-          tool.id === toolId
+        tools: (prevSettings.tools || []).map(tool =>
+          (tool && tool.id === toolId)
             ? { ...tool, viewCount: previousViewCount }
             : tool
-        )
+        ).filter(Boolean)
       }));
     }
   }, [settings]);
@@ -158,20 +181,26 @@ export const useSettings = () => {
   const updateToolTags = useCallback((toolId, newTags) => {
     setSettings(prevSettings => ({
       ...prevSettings,
-      tools: prevSettings.tools.map(tool =>
-        tool.id === toolId
+      tools: (prevSettings.tools || []).map(tool =>
+        (tool && tool.id === toolId)
           ? { ...tool, tags: newTags }
           : tool
-      )
+      ).filter(Boolean)
     }));
   }, []);
 
   // 添加新工具
   const addTool = useCallback(async (newTool) => {
+    // 确保新工具数据有效
+    if (!newTool || !newTool.id || !newTool.name || newTool.categoryId === undefined) {
+      console.error('⚠️ 尝试添加无效的工具:', newTool);
+      throw new Error('无效的工具数据');
+    }
+
     // 先乐观更新本地状态
     setSettings(prevSettings => ({
       ...prevSettings,
-      tools: [...prevSettings.tools, newTool]
+      tools: [...(prevSettings.tools || []), newTool].filter(Boolean)
     }));
 
     try {
@@ -181,7 +210,9 @@ export const useSettings = () => {
       // 回滚乐观更新
       setSettings(prevSettings => ({
         ...prevSettings,
-        tools: prevSettings.tools.filter(tool => tool.id !== newTool.id)
+        tools: (prevSettings.tools || []).filter(tool =>
+          tool && tool.id !== newTool.id
+        )
       }));
       throw err;
     }

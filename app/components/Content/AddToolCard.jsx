@@ -47,10 +47,18 @@ const AddToolCard = memo(({ categoryId, style: propStyle = {} }) => {
 
       const data = await response.json();
 
-      if (data.success) {
-        // 更新全局状态
+      if (data.success && data.data) {
+        // 验证工具数据的有效性
+        const newTool = data.data;
+        if (!newTool || !newTool.id || !newTool.name || newTool.categoryId === undefined) {
+          console.error('⚠️ API 返回了无效的工具数据:', newTool);
+          message.error('服务器返回了无效的工具数据');
+          return;
+        }
+
+        // 更新全局状态 - 确保传递有效的工具数据
         if (addTool) {
-          addTool(data.tool);
+          addTool(newTool);
         }
         message.success('工具添加成功');
         setModalVisible(false);
